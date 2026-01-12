@@ -1,15 +1,44 @@
-# Ambiente Python
-cruz.dev_venv/
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Banco de dados local
+# Ambiente virtual
+venv/
+ENV/
+cruz.dev_venv/
+
+# Banco de dados
 instance/
+*.db
+*.sqlite3
+
+# Configurações
 .env
+.env.local
 
 # IDEs
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # Sistema
 .DS_Store
