@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Pesquisa de Produtos{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-search me-2"></i> Pesquisa de Produtos</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="p-4">
+        <form method="GET">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="termo" placeholder="Nome, código ou descrição do produto">
+                <button class="btn btn-primary" type="submit">Pesquisar</button>
+            </div>
+        </form>
+
+        <div class="mt-4">
+            <h6>Resultados:</h6>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Produto</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>PROD001</td>
+                        <td>Armação Metálica</td>
+                        <td>R$ 89,90</td>
+                        <td>15</td>
+                        <td>
+                            <button class="btn btn-sm btn-info">Ver detalhes</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

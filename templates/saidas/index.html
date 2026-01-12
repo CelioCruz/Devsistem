@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Saídas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Saídas</h2>
+    <p>Selecione uma opção abaixo para gerenciar saídas.</p>
+    
+    {% set menu_itens = [
+        {'label': 'Pedido de Venda', 'url': url_for('saidas.listar_pedidos_venda'), 'icon': 'bi bi-cart-check'},
+        {'label': 'Notas Fiscais de Saída', 'url': url_for('saidas.listar_nf_saida'), 'icon': 'bi bi-receipt'},
+        {'label': 'Devoluções', 'url': url_for('saidas.listar_devolucoes'), 'icon': 'bi bi-arrow-return-left'},
+        {'label': 'Pesquisa Cliente', 'url': url_for('saidas.pesquisa', tipo='cliente'), 'icon': 'bi bi-person'},
+        {'label': 'Pesquisa Fornecedor', 'url': url_for('saidas.pesquisa', tipo='fornecedor'), 'icon': 'bi bi-building'}, 
+        {'label': 'Pesquisa Produto', 'url': url_for('saidas.pesquisa', tipo='produto'), 'icon': 'bi bi-box'}
+    ] %}
+
+    {% include 'partials/menu_secundario.html' %}
+</div>
+{% endblock %}

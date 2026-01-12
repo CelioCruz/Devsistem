@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - Histórico de Fornecedor{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-building me-2"></i> 🔍 Pesquisar Fornecedor para Histórico</h3>
+    <button class="btn btn-outline-secondary btn-sm" onclick="window.location.href='{{ url_for('financeiro.index') }}'">
+        ← Voltar para Financeiro
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <!-- Barra de pesquisa com F2 -->
+        <form method="GET" class="mb-3">
+            <input type="hidden" name="filtro" id="filtro-input" value="{{ request.args.get('filtro', 'razao') }}">
+            <div class="input-group">
+                <span class="input-group-text" id="filtro-label">
+                    {% set f = request.args.get('filtro', 'razao') %}
+                    {% if f == 'razao' %}Razão Social{% elif f == 'cnpj' %}CNPJ{% else %}Fantasia{% endif %}
+                </span>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="q" 
+                    id="search-input"
+                    value="{{ request.args.get('q', '') }}"
+                    placeholder="Pesquisar por {{ 'razão social' if not request.args.get('filtro') or request.args.get('filtro') == 'razao' else ('CNPJ' if request.args.get('filtro') == 'cnpj' else 'fantasia') }}"
+                    autofocus
+                >
+                <button class="btn btn-outline-secondary" type="submit">🔍</button>
+            </div>
+            <small class="form-text text-muted">
+                Pressione <kbd>F2</kbd> para alternar entre Razão Social, CNPJ e Fantasia.
+            </small>
+        </form>
+
+        <!-- Resultados -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>RAZÃO SOCIAL</th>
+                        <th>FANTASIA</th>
+                        <th>CNPJ</th>
+                        <th>AÇÃO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if fornecedores %}
+                        {% for f in fornecedores %}
+                        <tr>
+                            <td>{{ f.forn_razao|upper }}</td>
+                            <td>{{ f.forn_fantasia|upper if f.forn_fantasia else '-' }}</td>
+                            <td>
+                                {% if f.forn_cnpj %}
+                                    {{ f.forn_cnpj[:2] + '.' + f.forn_cnpj[2:5] + '.' + f.forn_cnpj[5:8] + '/' + f.forn_cnpj[8:12] + '-' + f.forn_cnpj[12:] }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('financeiro.historico_fornecedor_detalhes', fornecedor_id=f.forn_cnpj) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    Ver Histórico
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">NENHUM FORNECEDOR ENCONTRADO.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 113 || (e.key && e.key.toUpperCase() === 'F2')) {
+        e.preventDefault();
+        const filtroInput = document.getElementById('filtro-input');
+        const label = document.getElementById('filtro-label');
+        const searchInput = document.getElementById('search-input');
+        let atual = filtroInput.value;
+
+        if (atual === 'razao') {
+            filtroInput.value = 'cnpj';
+            label.textContent = 'CNPJ';
+            searchInput.placeholder = 'Pesquisar por CNPJ';
+        } else if (atual === 'cnpj') {
+            filtroInput.value = 'fantasia';
+            label.textContent = 'Fantasia';
+            searchInput.placeholder = 'Pesquisar por Fantasia';
+        } else {
+            filtroInput.value = 'razao';
+            label.textContent = 'Razão Social';
+            searchInput.placeholder = 'Pesquisar por Razão Social';
+        }
+    }
+});
+</script>
+{% endblock %}

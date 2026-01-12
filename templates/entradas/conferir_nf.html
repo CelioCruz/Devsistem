@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Conferência de NF-e{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Conferência de NF-e</h2>
+    <p><strong>Chave da NF-e:</strong> {{ nf_chave }}</p>
+
+    <!-- Botão secundário -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar ao Controle de Entradas
+        </a>
+    </div>
+
+    <form method="POST" action="{{ url_for('entradas.confirmar_nf') }}">
+        <input type="hidden" name="nf_chave" value="{{ nf_chave }}">
+
+        <!-- Cabeçalho unificado -->
+        <div class="row g-3 mb-3">
+            <!-- Empresa (somente leitura) -->
+            <div class="col-md-4">
+                <label class="form-label">Empresa</label>
+                <input type="text" class="form-control" value="{{ empresa_nome }}" readonly>
+            </div>
+
+            <!-- Nota fiscal -->
+            <div class="col-md-4">
+                <label class="form-label">Nota fiscal</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="nota_fiscal" value="recebida"
+                           {% if cabecalho.get('nota_fiscal') == 'recebida' %}checked{% endif %}>
+                    <label class="form-check-label">Recebida</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="nota_fiscal" value="nao_recebida"
+                           {% if cabecalho.nota_fiscal == 'nao_recebida' %}checked{% endif %}>
+                    <label class="form-check-label">Não-recebida</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="nota_fiscal" value="nao_emitida"
+                           {% if cabecalho.nota_fiscal == 'nao_emitida' %}checked{% endif %}>
+                    <label class="form-check-label">Não emitida</label>
+                </div>
+            </div>
+
+            <!-- Tipo Nota -->
+            <div class="col-md-4">
+                <label class="form-label">Tipo nota</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="tipo_nota" value="conventional"
+                           {% if cabecalho.tipo_nota == 'conventional' %}checked{% endif %}>
+                    <label class="form-check-label">Conventional</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="tipo_nota" value="nfe"
+                           {% if cabecalho.tipo_nota == 'nfe' %}checked{% endif %}>
+                    <label class="form-check-label">NFE</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="tipo_nota" value="nfe_servico"
+                           {% if cabecalho.tipo_nota == 'nfe_servico' %}checked{% endif %}>
+                    <label class="form-check-label">NFE Serviço</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <label>Nro. da nota:</label>
+                <input type="text" name="nf_numero" class="form-control" value="{{ cabecalho.nf_numero }}">
+            </div>
+            <div class="col-md-2">
+                <label>Série:</label>
+                <input type="text" name="serie" class="form-control" value="{{ cabecalho.serie }}">
+            </div>
+            <div class="col-md-2">
+                <label>Emissão:</label>
+                <input type="date" name="data_emissao" class="form-control" value="{{ cabecalho.data_emissao }}">
+            </div>
+            <div class="col-md-2">
+                <label>Recebimento:</label>
+                <input type="date" name="data_recebimento" class="form-control" value="{{ cabecalho.data_recebimento }}">
+            </div>
+            <div class="col-md-3">
+                <label>Cliente / fornecedor:</label>
+                <select name="fornecedor_id" class="form-select">
+                    <option value="">Selecione...</option>
+                    {% for f in fornecedores %}
+                        <option value="{{ f.forn_cnpj }}" 
+                                {% if f.forn_cnpj == cabecalho.fornecedor_cnpj %}selected{% endif %}>
+                            {{ f.forn_nome_fantasia }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class "row g-3 mb-3">
+            <div class="col-md-6">
+                <label>Natureza de operação:</label>
+                <select name="natureza_operacao" class="form-select">
+                    <option value="">(Nenhuma)</option>
+                    {% for no in naturezas %}
+                        <option value="{{ no.no_codigo }}"
+                                {% if no.no_codigo == cabecalho.natureza_operacao %}selected{% endif %}>
+                            {{ no.no_codigo }} - {{ no.no_descricao }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label>Condição de pagamento:</label>
+                <select name="condicao_pagamento" class="form-select">
+                    <option value="">(Nenhuma)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabela de produtos (mantenha como estava) -->
+        <h5>Itens da NF-e</h5>
+        <div class="table-responsive">
+            <!-- ... sua tabela existente ... -->
+        </div>
+
+        <!-- Botões -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Confirmar Entrada
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

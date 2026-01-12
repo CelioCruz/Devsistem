@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Devoluções de Venda{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho com título e botão Voltar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="bi bi-arrow-return-left me-2"></i> Devoluções de Venda</h3>
+        <a href="{{ url_for('saidas.index') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+
+    <!-- Botão para nova devolução -->
+    <div class="mb-3">
+        <a href="{{ url_for('saidas.nova_devolucao') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle me-1"></i> Nova Devolução
+        </a>
+    </div>
+
+    <!-- Lista de devoluções -->
+    <div class="card">
+        <div class="card-header bg-white">
+            <strong>📋 Devoluções Registradas</strong>
+        </div>
+        <div class="card-body">
+            {% if devolucoes %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cód.</th>
+                                <th>NF-e de Saída</th>
+                                <th>Cliente</th>
+                                <th>Data</th>
+                                <th>Motivo</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dev in devolucoes %}
+                            <tr>
+                                <td>{{ dev.dev_reg }}</td>
+                                <td>
+                                    {% if dev.nf_saida %}
+                                        {{ dev.nf_saida.snf_numero }}
+                                    {% else %}
+                                        <span class="text-muted">–</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if dev.cliente %}
+                                        {{ dev.cliente.cli_nome }}
+                                    {% else %}
+                                        <span class="text-muted">–</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ dev.dev_data.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ dev.dev_motivo or '–' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if dev.dev_status == 'concluida' else 'warning' }}">
+                                        {{ dev.dev_status|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('saidas.editar_devolucao', devolucao_id=dev.dev_reg) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil me-1"></i> Editar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-inbox fs-1 text-muted mb-2"></i>
+                    <p class="text-muted">Nenhuma devolução registrada.</p>
+                    <a href="{{ url_for('saidas.nova_devolucao') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-return-left me-1"></i> Registrar Primeira Devolução
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

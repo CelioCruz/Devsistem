@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Devoluções do Dia{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column min-vh-100">
+    <!-- Barra superior -->
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-arrow-return-left me-2"></i> Devoluções do Dia</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar para o caixa</a>
+    </div>
+
+    <!-- Área central (sem menu lateral) -->
+    <div class="container-fluid p-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <h6><i class="bi bi-arrow-return-left me-2"></i> Devoluções do Dia ({{ hoje.strftime('%d/%m/%Y') }})</h6>
+            </div>
+            <div class="card-body d-flex flex-column">
+                {% if devolucoes %}
+                    <div class="table-responsive flex-grow-1">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nº Devolução</th>
+                                    <th>Venda Original</th>
+                                    <th>Cliente</th>
+                                    <th>Data/Hora</th>
+                                    <th>Valor</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dev in devolucoes %}
+                                <tr>
+                                    <td>{{ dev.id }}</td>
+                                    <td>{{ dev.venda_original.os_numero if dev.venda_original else '-' }}</td>
+                                    <td>{{ dev.cliente.cli_nome if dev.cliente else '-' }}</td>
+                                    <td>{{ dev.data_devolucao.strftime('%H:%M') }}</td>
+                                    <td>R$ {{ "%.2f"|format(dev.valor_devolucao or 0) }}</td>
+                                    <td>{{ dev.motivo|truncate(30) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info flex-grow-1 d-flex align-items-center justify-content-center">
+                        Nenhuma devolução registrada hoje.
+                    </div>
+                {% endif %}
+
+                <!-- Total de devoluções -->
+                <div class="mt-3 p-3 bg-light rounded">
+                    <strong>Total em devoluções:</strong> R$ {{ "%.2f"|format(total_devolucoes or 0) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📥 RODAPÉ COM BARRA DE AÇÕES -->
+    <div class="bg-light border-top d-flex justify-content-between align-items-center px-3 py-2">
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="location.reload()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Atualizar
+            </button>
+        </div>
+
+        <div class="input-group w-50">
+            <span class="input-group-text">Pesquisa Rápida</span>
+            <input type="text" class="form-control" id="pesquisa-devolucao" placeholder="Digite nº da devolução ou cliente">
+            <button class="btn btn-outline-secondary" onclick="buscarDevolucao()">Buscar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function buscarDevolucao() {
+    const termo = document.getElementById('pesquisa-devolucao').value.trim();
+    if (!termo) return;
+    alert('Busca por: ' + termo);
+    // Implemente depois com AJAX ou redirecionamento
+}
+
+// Atalho Enter na pesquisa
+document.getElementById('pesquisa-devolucao').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        buscarDevolucao();
+    }
+});
+</script>
+{% endblock %}

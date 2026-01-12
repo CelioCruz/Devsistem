@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+
+{% block title %}Caixa / PDV{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column min-vh-100">
+    <!-- 🔝 Barra de Ferramentas Superior -->
+    <div class="bg-light border-bottom d-flex flex-wrap align-items-center px-3 py-2">
+        {% if estado_caixa == 'fechado' %}
+            <!-- ✅ Só "Novo Caixa" ativo -->
+            <a href="{{ url_for('caixa.abrir_caixa') }}" class="btn btn-sm btn-success me-2" title="Novo Caixa">
+                <i class="bi bi-cash"></i> Novo caixa
+            </a>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-lock"></i> Encerrar caixa
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-calendar-check"></i> Encerrar dia
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-arrow-repeat"></i> Reabrir Caixa
+            </button>
+
+        {% elif estado_caixa == 'aberto' %}
+            <!-- ✅ Só "Encerrar Caixa" ativo -->
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-cash"></i> Novo caixa
+            </button>
+            <a href="{{ url_for('caixa.fechar_caixa') }}" class="btn btn-sm btn-danger me-2" title="Encerrar Caixa">
+                <i class="bi bi-lock"></i> Encerrar caixa
+            </a>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-calendar-check"></i> Encerrar dia
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-arrow-repeat"></i> Reabrir Caixa
+            </button>
+
+        {% elif estado_caixa == 'encerrado' %}
+            <!-- ✅ "Reabrir Caixa" e "Encerrar Dia" ativos -->
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-cash"></i> Novo caixa
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-lock"></i> Encerrar caixa
+            </button>
+            <a href="{{ url_for('caixa.finalizar_dia') }}" class="btn btn-sm btn-danger me-2" title="Encerrar Dia">
+                <i class="bi bi-calendar-check"></i> Encerrar dia
+            </a>
+            <a href="{{ url_for('caixa.reabrir_caixa') }}" class="btn btn-sm btn-info me-2" title="Reabrir Caixa">
+                <i class="bi bi-arrow-repeat"></i> Reabrir Caixa
+            </a>
+
+        {% elif estado_caixa == 'finalizado' %}
+            <!-- ✅ Volta ao início: só "Novo Caixa" ativo -->
+            <a href="{{ url_for('caixa.abrir_caixa') }}" class="btn btn-sm btn-success me-2" title="Novo Caixa">
+                <i class="bi bi-cash"></i> Novo caixa
+            </a>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-lock"></i> Encerrar caixa
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-calendar-check"></i> Encerrar dia
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                <i class="bi bi-arrow-repeat"></i> Reabrir Caixa
+            </button>
+        {% endif %}
+
+        <!-- 🔽 Dropdown Resumo -->
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-printer"></i> Resumo
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('caixa.imprimir_resumo') }}">Imprimir resumo do caixa</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('caixa.visualizar_resumo') }}">Visualizar resumo do caixa</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Adicionar observações</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Imprimir fechamento de caixa</a></li>
+                <li><a class="dropdown-item" href="#">Visualizar fechamento de caixa</a></li>
+            </ul>
+        </div>
+        <a href="{{ url_for('caixa.nova_venda_os') }}" class="btn btn-sm btn-outline-secondary me-2" title="Venda (F3)">
+            <i class="bi bi-cart-plus"></i> Venda(F3)
+        </a>
+
+        <button type="button" class="btn btn-warning me-2" onclick="abrirModalGarantia()">
+            <i class="bi bi-shield-check"></i> Garantia
+        </button>
+
+        <!-- ✅ BOTÃO "VOLTAR AO MENU" -->
+        <a href="{{ url_for('admin.home') }}" class="btn btn-sm btn-secondary ms-auto" title="Voltar ao menu">
+            <i class="bi bi-arrow-left"></i> Voltar ao menu
+        </a>
+    </div>
+
+    <div class="row g-0 flex-grow-1">
+        <!-- 📋 Menu Lateral -->
+        <div class="col-md-2 bg-white border-end">
+            <div class="nav flex-column mt-3">
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.vendas_do_dia') }}" class="nav-link">
+                        <i class="bi bi-glasses me-2"></i> Vendas
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.ordens_servico') }}" class="nav-link">
+                        <i class="bi bi-glasses me-2"></i> Ordens de serviço
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.devolucoes_do_dia') }}" class="nav-link">
+                        <i class="bi bi-glasses me-2"></i> Devoluções do Dia
+                    </a>
+                </div>                
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.garantias_do_dia') }}" class="nav-link">
+                        <i class="bi bi-glasses me-2"></i> Garantias do Dia
+                    </a>
+                </div>                
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.operacoes') }}" class="nav-link">
+                        <i class="bi bi-plus-square me-2"></i> Operações
+                    </a>
+                    </a>
+                    <div class="collapse" id="menu-operacoes">
+                        <div class="nav flex-column ms-3">
+                            <a href="{{ url_for('financeiro.plano_contas') }}" class="nav-link">Recebimentos</a>
+                            <a href="{{ url_for('saidas.nova_devolucao') }}" class="nav-link"><i class="bi bi-arrow-return-left me-2 text-danger"></i> Devolução</a>
+                            <hr class="dropdown-divider">
+                            <a href="{{ url_for('caixa.historico_vendas') }}" class="btn btn-outline-info btn-lg">
+                                <i class="bi bi-clock-history me-2"></i> Histórico de Vendas
+                            </a>
+                                   
+                            {% if current_user.us_cad == 'cruzdevsoft' or current_user.us_cad == 'Administrador' %}
+                                <a href="{{ url_for('caixa.cancelar_cupon') }}" class="nav-link">Cancelar cupom</a>
+                            {% else %}
+                                <a href="#" class="nav-link disabled"><i class="bi bi-x-circle me-2 text-muted"></i> Cancelar cupom</a>
+                            {% endif %}
+
+                            <div class="nav-item">
+                                <a href="{{ url_for('admin.pesquisa_armacoes') }}" class="nav-link"><i class="bi bi-search me-2"></i> Pesquisa de armações</a>
+                            </div>
+                            <div class="nav-item">
+                                <a href="{{ url_for('admin.pesquisa_lentes') }}" class="nav-link"><i class="bi bi-search me-2"></i> Pesquisa de lentes</a>
+                            </div>
+                            <div class="nav-item">
+                                <a href="{{ url_for('admin.pesquisa_produtos') }}" class="nav-link"><i class="bi bi-search me-2"></i> Pesquisa de produtos</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 📊 Área Central -->
+        <div class="col-md-10 p-3">
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nº venda</th>
+                        <th>Cliente</th>
+                        <th>Dt.Emissão</th>
+                        <th>Total</th>
+                        <th>Usuário</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <i class="bi bi-info-circle me-2"></i> Nenhum dado foi encontrado
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 📥 Rodapé -->
+    <div class="bg-light border-top d-flex justify-content-between align-items-center px-3 py-2">
+        <div>
+            <button class="btn btn-sm btn-outline-primary me-2">
+                <i class="bi bi-arrow-clockwise"></i> Atualizar
+            </button>
+            <button class="btn btn-sm btn-outline-danger me-2">
+                <i class="bi bi-x-circle"></i> Excluir venda
+            </button>
+            <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-printer"></i> Romaneio
+            </button>
+        </div>
+        <div class="input-group w-50">
+            <span class="input-group-text">Pesquisa Rápida (CTRL+F)</span>
+            <input type="text" class="form-control" placeholder="Digite o número da venda ou código de barras">
+            <button class="btn btn-outline-secondary">Enter</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Garantia -->
+<div class="modal fade" id="modal-garantia" tabindex="-1" aria-labelledby="modalGarantiaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="modalGarantiaLabel">Registrar Garantia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Campo para digitar CV -->
+                <div class="mb-3">
+                    <label for="cv-numero-input" class="form-label">Nº Comanda de Venda (CV):</label>
+                    <input type="text" class="form-control" id="cv-numero-input" placeholder="Digite o número da CV">
+                    <small class="text-muted">Ex: OS1001</small>
+                </div>
+
+                <!-- Dados da OS (aparece após buscar) -->
+                <div id="dados-os" style="display:none;">
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>OS:</strong> <span id="os-numero-display"></span></div>
+                        <div class="col-md-3"><strong>Cliente:</strong> <span id="cliente-nome-display"></span></div>
+                        <div class="col-md-3"><strong>Vendedor:</strong> <span id="vendedor-nome-display"></span></div>
+                        <div class="col-md-3"><strong>Data Emissão:</strong> <span id="data-emissao-display"></span></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Laboratório:</strong> <span id="laboratorio-nome-display"></span></div>
+                        <div class="col-md-4"><strong>Médico:</strong> <span id="medico-nome-display"></span></div>
+                        <div class="col-md-4"><strong>Data Entrega:</strong> <span id="data-entrega-display"></span></div>
+                    </div>
+
+                    <!-- Produtos da OS -->
+                    <h6>Selecione os itens para garantia:</h6>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Tipo</th>
+                                <th>Garantia?</th>
+                                <th>Defeito</th>
+                                <th>Par completo? (Lente)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itens-os">
+                            <!-- Itens serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="confirmarGarantia()">Confirmar Garantia</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Atalho F3
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F3' && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+        e.preventDefault();
+        window.location.href = "{{ url_for('caixa.nova_venda_os') }}";
+    }
+});
+
+// ===== GARANTIA =====
+function abrirModalGarantia() {
+    const modal = new bootstrap.Modal(document.getElementById('modal-garantia'));
+    modal.show();
+
+    // Limpa campos
+    document.getElementById('cv-numero-input').value = '';
+    document.getElementById('dados-os').style.display = 'none';
+    document.getElementById('itens-os').innerHTML = '';
+
+    // Foca no campo de CV
+    document.getElementById('cv-numero-input').focus();
+}
+
+async function buscarOsPorCv() {
+    const cv = document.getElementById('cv-numero-input').value.trim();
+    if (!cv) {
+        alert('Digite o número da Comanda de Venda (CV)');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/caixa/buscar-os-por-cv?cv=${encodeURIComponent(cv)}`);
+        const data = await response.json();
+
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        // Preenche dados da OS
+        document.getElementById('os-numero-display').textContent = data.os.os_numero;
+        document.getElementById('cliente-nome-display').textContent = data.cliente.cli_nome || 'Não definido';
+        document.getElementById('vendedor-nome-display').textContent = data.vendedor.us_cad || 'Não definido';
+        document.getElementById('data-emissao-display').textContent = data.os.data_emissao.split('T')[0];
+        document.getElementById('laboratorio-nome-display').textContent = data.laboratorio?.lab_nome || 'Não definido';
+        document.getElementById('medico-nome-display').textContent = data.medico ? `${data.medico.med_nome} - CRM ${data.medico.med_crm}` : 'Não definido';
+        document.getElementById('data-entrega-display').textContent = data.os.data_prevista_cliente?.split('T')[0] || 'Não definido';
+
+        // Preenche itens
+        const tbody = document.getElementById('itens-os');
+        tbody.innerHTML = '';
+        data.itens.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.descricao}</td>
+                <td>${item.tipo}</td>
+                <td><input type="checkbox" class="form-check-input garantia-item" data-id="${item.id}" data-tipo="${item.tipo}"></td>
+                <td><input type="text" class="form-control defeito" placeholder="Descreva o defeito" disabled></td>
+                <td>${item.tipo === 'lente' ? '<input type="checkbox" class="form-check-input par-completo" disabled>' : '-'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Habilita campos ao marcar
+        document.querySelectorAll('.garantia-item').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const row = this.closest('tr');
+                const defeitoInput = row.querySelector('.defeito');
+                const parCompleto = row.querySelector('.par-completo');
+                if (this.checked) {
+                    defeitoInput.disabled = false;
+                    if (parCompleto) parCompleto.disabled = false;
+                } else {
+                    defeitoInput.disabled = true;
+                    defeitoInput.value = '';
+                    if (parCompleto) {
+                        parCompleto.disabled = true;
+                        parCompleto.checked = false;
+                    }
+                }
+            });
+        });
+
+        document.getElementById('dados-os').style.display = 'block';
+
+    } catch (error) {
+        alert('Erro ao buscar OS: ' + error.message);
+    }
+}
+
+async function confirmarGarantia() {
+    const cv = document.getElementById('cv-numero-input').value.trim();
+    if (!cv) {
+        alert('Digite o número da Comanda de Venda (CV)');
+        return;
+    }
+
+    const itensSelecionados = [];
+    document.querySelectorAll('.garantia-item:checked').forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        itensSelecionados.push({
+            id: checkbox.dataset.id,
+            tipo: checkbox.dataset.tipo,
+            defeito: row.querySelector('.defeito').value,
+            par_completo: checkbox.dataset.tipo === 'lente' ? row.querySelector('.par-completo')?.checked : null
+        });
+    });
+
+    if (itensSelecionados.length === 0) {
+        alert('Selecione pelo menos um item para garantia.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/caixa/registrar-garantia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cv_numero: cv,
+                itens: itensSelecionados
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert(`Garantia registrada!\nNova OS: ${result.nova_os}`);
+            location.reload();
+        } else {
+            alert('Erro ao registrar garantia: ' + result.error);
+        }
+    } catch (error) {
+        alert('Erro de conexão: ' + error.message);
+    }
+
+    bootstrap.Modal.getInstance(document.getElementById('modal-garantia')).hide();
+}
+
+// Busca OS ao pressionar Enter no campo de CV
+document.getElementById('cv-numero-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        buscarOsPorCv();
+    }
+});
+function abrirModalOperacoes() {
+    const modal = new bootstrap.Modal(document.getElementById('modal-operacoes'));
+    modal.show();
+}
+</script>
+{% endblock %}

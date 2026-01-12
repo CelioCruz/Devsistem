@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Nova Lente Genérica{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="fas fa-glasses me-2"></i> Nova Lente Genérica</h3>
+    <a href="{{ url_for('admin.listar_lentes_genericas') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+</div>
+
+<form method="POST">
+    <div class="card">
+        <div class="card-body">
+
+            <!-- Fabricante -->
+            <div class="mb-3">
+                <label class="form-label">Fabricante</label>
+                <select class="form-control" name="fabricante_id">
+                    <option value="">Selecione um fabricante (opcional)</option>
+                    {% for f in fornecedores %}
+                        <option value="{{ f.forn_cnpj }}">{{ f.forn_fantasia }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Descrição -->
+            <div class="mb-3">
+                <label class="form-label">Descrição da Lente *</label>
+                <input type="text" class="form-control" name="descricao"
+                       placeholder="Ex: VARILUX CONFORT, Hoyalux iD" required>
+            </div>            
+
+            <!-- Tipo e Refração -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Tipo de Lente *</label>
+                    <select class="form-control" name="tipo_lente" required>
+                        <option value="">Selecione</option>
+                        <option value="MF">MF (Multifocal)</option>
+                        <option value="OC">OC (Ocupacional)</option>
+                        <option value="BF">BF (Bifocal)</option>
+                        <option value="VS">VS (Visão Simples)</option>
+                        <option value="LC">LC (Lente de Contato)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Índice de Refração *</label>
+                    <select class="form-control" name="id_refracao" required>
+                        <option value="">Selecione</option>
+                        <option value="1.50">1.50</option>
+                        <option value="1.56">1.56</option>
+                        <option value="1.59">1.59</option>
+                        <option value="1.60">1.60</option>
+                        <option value="1.61">1.61</option>
+                        <option value="1.67">1.67</option>
+                        <option value="1.70">1.70</option>
+                        <option value="1.74">1.74</option>
+                        <option value="1.80">1.80</option>
+                        <option value="1.90">1.90</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Faixas de Dioptrias -->
+            <h5 class="mb-3">Faixas de Dioptrias (valores em dioptrias)</h5>
+
+            <div class="row">
+                <!-- Esférico -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Esférico (mín/máx) *</label>
+                    <input type="text" class="form-control" name="esf_min" placeholder="-6.00" value="-6.00" required>
+                    <input type="text" class="form-control mt-1" name="esf_max" placeholder="6.00" value="6.00" required>
+                    <small class="text-muted">Passo fixo: 0.25</small>
+                </div>
+
+                <!-- Cilíndrico -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Cilíndrico (mín/máx) *</label>
+                    <input type="text" class="form-control" name="cil_min" placeholder="0.00" value="0.00" required>
+                    <input type="text" class="form-control mt-1" name="cil_max" placeholder="-4.00" value="-4.00" required>
+                    <small class="text-muted">Passo fixo: 0.25</small>
+                </div>
+
+                <!-- Adição -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Adição (mín/máx) *</label>
+                    <input type="text" class="form-control" name="add_min" placeholder="0.75" value="0.75" required>
+                    <input type="text" class="form-control mt-1" name="add_max" placeholder="3.50" value="3.50" required>
+                    <small class="text-muted">Passo fixo: 0.25</small>
+                </div>
+            </div>
+
+            <!-- Altura Fixa -->
+            <div class="mb-3">
+                <label class="form-label">Altura Fixa (opcional)</label>
+                <input type="text" class="form-control" name="altura_fixa"
+                       placeholder="Ex: 18"
+                       maxlength="2"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2)">
+                <small class="text-muted">Deixe em branco se a altura for variável.</small>
+            </div>
+
+            <!-- Preço Base -->
+            <div class="mb-3">
+                <label class="form-label">Preço de Custo Base *</label>
+                <input type="text" class="form-control" name="preco_base"
+                    placeholder="0,00"
+                    oninput="this.value = this.value.replace(/[^0-9,]/g, '')"
+                    required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Salvar Lente Genérica</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

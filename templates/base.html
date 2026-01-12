@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CRUZ DEV SOFT{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Estilo geral */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Navbar Top (azul completo) */
+        .navbar-top {
+            position: fixed;
+            top: 0;
+            left: 220px;
+            right: 0;
+            height: 60px;
+            background-color: #007bff;
+            color: white;
+            border-bottom: 1px solid #0056b3;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-sair {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 20px;
+        }
+        .btn-sair:hover {
+            background-color: #c82333;
+        }
+
+        .btn-voltar {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        .btn-voltar:hover {
+            background-color: #5a6268;
+        }
+
+        /* Menu Lateral */
+        .menu-lateral {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 100vh;
+            background-color: #0056b3;
+            color: white;
+            padding: 0;
+            z-index: 999;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .logo-container {
+            padding: 20px;
+            background-color: #004085;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-container h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-align: center;
+            margin: 0;
+            color: white;
+        }
+
+        .titulo-menu {
+            background-color: #004085;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #003366;
+        }
+
+        .menu-lateral .nav-link {
+            padding: 12px 20px;
+            border-radius: 0;
+            margin: 0;
+            display: block;
+            color: white;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        .menu-lateral .nav-link:hover {
+            background-color: #004085;
+            border-left: 4px solid #ffffff;
+        }
+        .menu-lateral .nav-link.active {
+            background-color: #004085;
+            border-left: 4px solid #ffffff;
+            color: white;
+        }
+
+        /* Conteúdo Principal */
+        .conteudo-principal {
+            margin-left: 220px;
+            padding: 80px 20px 20px 20px;
+            min-height: 100vh;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        /* Alertas */
+        .alert {
+            margin-top: 20px;
+        }
+
+        /* Ícone da casa */
+        .home-icon {
+            font-size: 50px;
+            color: #007bff;
+            margin: 20px 0;
+        }
+
+        /* Texto de boas-vindas */
+        .welcome-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0;
+        }
+        .welcome-subtext {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Estilo das linhas vermelhas */
+        .table-danger {
+            background-color: #FFCCCC !important;
+            color: #990000 !important;
+        }
+        .table-danger td {
+            border-color: #FF9999 !important;
+        }
+
+        /* Estilo do botão de configuração */
+        .btn-light .bi-gear-fill {
+            font-size: 1rem;
+        }
+
+        /* Estilo do painel esquerdo */
+        #painelFiltros {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Estilo dos filtros avançados */
+        .accordion-button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: #F8F9FA;
+            border-bottom: 1px solid #DDD;
+        }
+
+        /* Estilo da tabela principal */
+        .table th {
+            background-color: #F5F5F5;
+            font-weight: 600;
+        }
+
+        /* Estilo do rodapé */
+        .border-top {
+            border-top: 1px solid #DDD !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar Top -->
+{% if request.endpoint != 'auth.login' and current_user.is_authenticated %}
+    <div class="navbar-top">
+        <div>
+            {% if request.endpoint == 'admin.home' %}
+                <!-- Não mostra "Voltar" na home -->
+            {% else %}
+                <a href="{{ url_for('admin.home') }}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Menu
+                </a>
+            {% endif %}
+        </div>
+        <div>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sair">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Menu Lateral -->
+{% if request.endpoint != 'auth.login' and current_user.is_authenticated %}
+    <nav class="menu-lateral">
+        <div class="logo-container">
+            <h1>CRUZ<br>DEV SOFT</h1>
+        </div>
+
+        <div class="titulo-menu">
+            <strong>MENU</strong>
+        </div>
+
+        <ul class="nav flex-column">
+            {% for ambiente in ambientes_permitidos %}
+                {% if ambiente.amb_nome == 'programador' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin.home') }}" 
+                           class="nav-link {{ 'active' if request.endpoint == 'admin.home' else '' }}">
+                            Programador
+                        </a>
+                    </li>
+                {% elif ambiente.amb_nome == 'administrador' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin.cadastro') }}" 
+                           class="nav-link {{ 'active' if request.endpoint.startswith('admin.') and request.endpoint != 'admin.home' and request.endpoint != 'admin.ver_ambiente' else '' }}">
+                            Administrador
+                        </a>
+                    </li>
+                {% elif ambiente.amb_nome == 'entradas' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('entradas.index') }}" 
+                           class="nav-link {{ 'active' if request.endpoint.startswith('entradas.') else '' }}">
+                            Entradas
+                        </a>
+                    </li>
+                {% elif ambiente.amb_nome == 'saidas' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('saidas.index') }}" 
+                        class="nav-link {{ 'active' if request.endpoint.startswith('saidas.') else '' }}">
+                            Saídas
+                        </a>
+                    </li>
+                {% elif ambiente.amb_nome == 'financeiro' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('financeiro.index') }}" 
+                        class="nav-link {{ 'active' if request.endpoint.startswith('financeiro.') else '' }}">
+                            Financeiro
+                        </a>
+                    </li>
+                {% elif ambiente.amb_nome == 'caixa' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('caixa.index') }}" 
+                        class="nav-link {{ 'active' if request.endpoint.startswith('caixa.') and not request.endpoint.endswith('.monitor_producao') else '' }}">
+                            Caixa / PDV
+                        </a>
+                    </li>
+                {% elif ambiente.amb_nome == 'monitor_producao' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('caixa.monitor_producao') }}" 
+                        class="nav-link {{ 'active' if request.endpoint == 'caixa.monitor_producao' else '' }}">
+                            Monitor de Produção
+                        </a>
+                    </li>
+                {% endif %}                
+            {% endfor %}
+        </ul>
+    </nav>
+{% endif %}
+
+<!-- Conteúdo Principal -->
+<div class="conteudo-principal">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

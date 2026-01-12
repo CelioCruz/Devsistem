@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Cancelar Cupom{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-x-circle me-2 text-danger"></i> Cancelar Cupom</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="p-4">
+        <div class="alert alert-info">
+            <strong>Atenção:</strong> Só é possível cancelar notas emitidas nos últimos 30 minutos.
+        </div>
+
+        {% if notas %}
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Nº Nota</th>
+                    <th>CV</th>
+                    <th>Cliente</th>
+                    <th>Data/Hora Emissão</th>
+                    <th>Status</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nota in notas %}
+                <tr>
+                    <td>{{ nota.numero_nfe }}</td>
+                    <td>{{ nota.cv_numero }}</td>
+                    <td>{{ nota.cliente.nome if nota.cliente else 'ID: ' ~ nota.cliente_id }}</td>
+                    <td>{{ nota.data_emissao.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td><span class="badge bg-success">{{ nota.status|upper }}</span></td>
+                    <td>
+                        {% set agora = now() %}
+                        {% set limite = nota.data_emissao + timedelta(minutes=30) %}
+                        
+                        {% if agora <= limite %}
+                            <button class="btn btn-sm btn-danger" 
+                                    onclick="confirmarCancelamento({{ nota.id }})">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </button>
+                        {% else %}
+                            <span class="text-muted">Expirado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-warning">Nenhuma nota emitida para cancelar.</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function confirmarCancelamento(id) {
+    if (confirm('Tem certeza que deseja cancelar esta nota?')) {
+        window.location.href = '/caixa/cancelar-cupon/' + id;
+    }
+}
+</script>
+{% endblock %}

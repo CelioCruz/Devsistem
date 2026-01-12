@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - Pesquisar Produto{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="fas fa-box me-2"></i> Produtos</h3>
+    
+    {% if origem == 'entradas' %}
+        <button class="btn btn-outline-secondary btn-sm" 
+                onclick="window.location.href='{{ url_for('entradas.index') }}'">
+            ← Voltar para Entradas
+        </button>
+    {% elif origem == 'saidas' %}
+        <button class="btn btn-outline-secondary btn-sm" 
+                onclick="window.location.href='{{ url_for('saidas.index') }}'">
+            ← Voltar para Saídas
+        </button>
+    {% elif origem == 'financeiro' %}
+        <button class="btn btn-outline-secondary btn-sm" 
+                onclick="window.location.href='{{ url_for('financeiro.index') }}'">
+            ← Voltar para Financeiro
+        </button>
+    {% else %}
+        <button class="btn btn-outline-secondary btn-sm" 
+                onclick="window.location.href='{{ url_for('admin.cadastro', amb_id=1) }}'">
+            ← Voltar ao Cadastro
+        </button>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header bg-white d-flex align-items-center">
+        <i class="fas fa-search me-2"></i>
+        <strong>🔍 Pesquisar Produto</strong>
+    </div>
+    <div class="card-body">
+        <!-- Barra de pesquisa com F2 -->
+        <form method="GET" class="mb-3">
+            {% if origem %}
+                <input type="hidden" name="origem" value="{{ origem }}">
+            {% endif %}
+            
+            <input type="hidden" name="tipo" value="produto">
+            <input type="hidden" name="filtro" id="filtro-input" value="{{ request.args.get('filtro', 'descricao') }}">
+            
+            <div class="input-group">
+                <span class="input-group-text" id="filtro-label">
+                    {% set filtro_atual = request.args.get('filtro', 'descricao') %}
+                    {% if filtro_atual == 'descricao' %}Descrição{% elif filtro_atual == 'codigo' %}Código{% else %}NCM{% endif %}
+                </span>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="q" 
+                    id="search-input"
+                    placeholder="Pesquisar por {{ 'descrição' if not request.args.get('filtro') or request.args.get('filtro') == 'descricao' else ('código' if request.args.get('filtro') == 'codigo' else 'NCM') }}"
+                    value="{{ request.args.get('q', '') }}"
+                    autofocus
+                >
+                <button class="btn btn-outline-secondary" type="submit">🔍</button>
+            </div>
+            <small class="form-text text-muted">
+                Pressione <kbd>F2</kbd> para alternar entre Descrição, Código e NCM.
+            </small>
+        </form>
+
+        <!-- Tabela de resultados -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>CÓD.</th>
+                        <th>DESCRIÇÃO</th>
+                        <th>NCM</th>
+                        <th>FORNECEDOR</th>
+                        <th>COMPRA (R$)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if produtos %}
+                        {% for p in produtos %}
+                        <tr>
+                            <td>{{ p.prod_codigo_barras }}</td>
+                            <td>{{ p.prod_nome|upper }}</td>
+                            <td>{{ p.prod_ncm or '-' }}</td>
+                            <td>{{ p.fabricante.forn_fantasia if p.fabricante else '—' }}</td>
+                            <td>R$ {{ "%.2f"|format(p.prod_preco_custo or 0)|replace('.', ',') }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">NENHUM PRODUTO ENCONTRADO.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para F2 -->
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 113 || (e.key && e.key.toUpperCase() === 'F2')) {
+        e.preventDefault();
+        
+        const filtroInput = document.getElementById('filtro-input');
+        const label = document.getElementById('filtro-label');
+        const searchInput = document.getElementById('search-input');
+        let atual = filtroInput.value;
+
+        if (atual === 'descricao') {
+            filtroInput.value = 'codigo';
+            label.textContent = 'Código';
+            searchInput.placeholder = 'Pesquisar por Código';
+        } else if (atual === 'codigo') {
+            filtroInput.value = 'ncm';
+            label.textContent = 'NCM';
+            searchInput.placeholder = 'Pesquisar por NCM';
+        } else {
+            filtroInput.value = 'descricao';
+            label.textContent = 'Descrição';
+            searchInput.placeholder = 'Pesquisar por Descrição';
+        }
+    }
+});
+</script>
+{% endblock %}

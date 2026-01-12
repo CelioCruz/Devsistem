@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Garantias do Dia{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column min-vh-100">
+    <!-- Barra superior -->
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-shield-check me-2"></i> Garantias do Dia</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar para o caixa</a>
+    </div>
+
+    <!-- Área central (SEM menu lateral) -->
+    <div class="container-fluid p-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h6><i class="bi bi-shield-check me-2"></i> Garantias do Dia ({{ hoje.strftime('%d/%m/%Y') }})</h6>
+            </div>
+            <div class="card-body d-flex flex-column">
+                {% if garantias %}
+                    <div class="table-responsive flex-grow-1">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nº OS Garantia</th>
+                                    <th>Venda Original</th>
+                                    <th>Cliente</th>
+                                    <th>Data/Hora</th>
+                                    <th>Itens em Garantia</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for g in garantias %}
+                                <tr>
+                                    <td>{{ g.os_numero }}</td>
+                                    <td>{{ g.cv_numero or '-' }}</td>
+                                    <td>{{ g.cliente.cli_nome if g.cliente else '-' }}</td>
+                                    <td>{{ g.data_emissao.strftime('%H:%M') }}</td>
+                                    <td>
+                                        {% if g.itens_garantia %}
+                                            {{ g.itens_garantia|length }} item(s)
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('caixa.visualizar_os', os_numero=g.os_numero) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> Visualizar
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info flex-grow-1 d-flex align-items-center justify-content-center">
+                        Nenhuma garantia registrada hoje.
+                    </div>
+                {% endif %}
+
+                <!-- Total de garantias -->
+                <div class="mt-3 p-3 bg-light rounded">
+                    <strong>Total de garantias:</strong> {{ total_garantias }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📥 RODAPÉ COM BARRA DE AÇÕES -->
+    <div class="bg-light border-top d-flex justify-content-between align-items-center px-3 py-2">
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="location.reload()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Atualizar
+            </button>
+        </div>
+
+        <div class="input-group w-50">
+            <span class="input-group-text">Pesquisa Rápida</span>
+            <input type="text" class="form-control" id="pesquisa-garantia" placeholder="Digite nº da OS ou cliente">
+            <button class="btn btn-outline-secondary" onclick="buscarGarantia()">Buscar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function buscarGarantia() {
+    const termo = document.getElementById('pesquisa-garantia').value.trim();
+    if (!termo) return;
+    alert('Busca por garantia: ' + termo);
+    // Implemente depois com AJAX ou redirecionamento
+}
+
+document.getElementById('pesquisa-garantia').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        buscarGarantia();
+    }
+});
+</script>
+{% endblock %}

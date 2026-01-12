@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Pesquisa de {{ tipo|title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="bi bi-search me-2"></i> Pesquisa de {{ tipo|title }}</h3>
+        <a href="{{ url_for('saidas.index') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar para Saidas
+        </a>
+    </div>
+
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" 
+                   placeholder="Digite nome, código ou CPF/CNPJ..." 
+                   value="{{ query }}">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search"></i> Pesquisar
+            </button>
+        </div>
+    </form>
+
+    {% if resultados %}
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            {% if tipo == 'cliente' %}
+                                <th>Nome</th>
+                                <th>CPF/CNPJ</th>
+                                <th>Ações</th>
+                            {% else %}
+                                <th>Código</th>
+                                <th>Descrição</th>
+                                <th>Estoque</th>
+                                <th>Ações</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in resultados %}
+                            <tr>
+                                {% if tipo == 'cliente' %}
+                                    <td>{{ item.cli_nome }}</td>
+                                    <td>{{ item.cli_cpf_cnpj }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="selecionarCliente('{{ item.cli_cpf_cnpj }}', '{{ item.cli_nome }}')">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                {% else %}
+                                    <td>{{ item.prod_codigo }}</td>
+                                    <td>{{ item.prod_descricao }}</td>
+                                    <td>{{ item.prod_estoque }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="selecionarProduto('{{ item.prod_reg }}', '{{ item.prod_codigo }}')">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% elif query %}
+        <div class="alert alert-warning">Nenhum resultado encontrado.</div>
+    {% endif %}
+</div>
+
+<script>
+function selecionarCliente(cpfCnpj, nome) {
+    // Lógica para retornar ao formulário anterior
+    alert(`Cliente selecionado: ${nome} (${cpfCnpj})`);
+    window.close(); // ou window.history.back();
+}
+
+function selecionarProduto(produtoId, codigo) {
+    alert(`Produto selecionado: ${codigo}`);
+    window.close();
+}
+</script>
+{% endblock %}

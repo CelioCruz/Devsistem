@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Pesquisa de {{ 
+    'Produtos' if tipo == 'produto' else 
+    'Fornecedores' if tipo == 'fornecedor' else 
+    'Clientes' 
+}}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>
+        {% if tipo == 'produto' %}🔍 Pesquisa de Produtos
+        {% elif tipo == 'fornecedor' %}🔍 Pesquisa de Fornecedores
+        {% elif tipo == 'cliente' %}🔍 Pesquisa de Clientes
+        {% endif %}
+    </h3>
+    
+    <!-- ✅ BOTÃO SECUNDÁRIO DE VOLTA PARA ENTRADAS (ALINHADO À DIREITA) -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar para Entradas
+        </a>
+    </div>
+
+    <!-- Campo de busca -->
+    <form method="GET" class="mb-4">
+        <input type="hidden" name="tipo" value="{{ tipo }}">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Digite para buscar..." value="{{ query }}">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </form>
+
+    {% if query %}
+        <h5>Resultados para "{{ query }}" ({{ resultados|length }})</h5>
+        {% if resultados %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            {% if tipo == 'produto' %}
+                                <th>COD</th>
+                                <th>Descrição</th>
+                                <th>Compra (R$)</th>
+                            {% elif tipo == 'fornecedor' %}
+                                <th>Nome Fantasia</th>
+                                <th>CNPJ</th>
+                                <th>Contato</th>
+                            {% elif tipo == 'cliente' %}
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Telefone</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in resultados %}
+                            <tr>
+                                {% if tipo == 'produto' %}
+                                    <td>{{ item.prod_codigo }}</td>
+                                    <td>{{ item.prod_descricao }}</td>
+                                    <td>{{ "%.2f"|format(item.prod_preco_compra or 0) }}</td>
+                                {% elif tipo == 'fornecedor' %}
+                                    <td>{{ item.forn_nome_fantasia }}</td>
+                                    <td>{{ item.forn_cnpj }}</td>
+                                    <td>{{ item.forn_telefone or '-' }}</td>
+                                {% elif tipo == 'cliente' %}
+                                    <td>{{ item.cli_nome }}</td>
+                                    <td>{{ item.cli_email or '-' }}</td>
+                                    <td>{{ item.cli_telefone or '-' }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">Nenhum resultado encontrado.</div>
+        {% endif %}
+    {% else %}
+        <p class="text-muted">Digite um termo de busca acima.</p>
+    {% endif %}
+</div>
+{% endblock %}

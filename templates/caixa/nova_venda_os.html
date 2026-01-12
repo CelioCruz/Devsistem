@@ -1,0 +1,613 @@
+{% extends "base.html" %}
+
+{% block title %}Nova Venda (OS) - Caixa{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-cart-plus me-2"></i> Nova Venda (F3)</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="p-3">
+        <form method="POST">
+            <div class="row g-3">
+                <!-- Coluna Esquerda -->
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <strong>Óculos</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="os_numero" class="form-label">Nro. OS:</label>
+                                <input type="number" 
+                                    class="form-control" 
+                                    id="os_numero" 
+                                    name="os_numero" 
+                                    value="{{ proximo_numero }}" 
+                                    readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Vendedor:</label>                                
+                                {% if vendedor_automatico %}
+                                    <input type="hidden" name="vendedor_id" value="{{ vendedor_automatico }}">
+                                    <div class="form-control" readonly>
+                                        {{ current_user.us_cad }}
+                                    </div>
+                                {% else %}
+                                    <select class="form-select" name="vendedor_id" required>
+                                        <option value="">(Selecione um vendedor)</option>
+                                        {% for v in vendedores_lista %}
+                                        <option value="{{ v.us_reg }}">{{ v.us_cad }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Cliente com F2 -->
+                            <div class="mb-3">
+                                <label for="cliente_busca" class="form-label">Cliente:</label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                        class="form-control" 
+                                        id="cliente_busca" 
+                                        placeholder="Digite o nome do cliente">
+                                    <button class="btn btn-outline-secondary" type="button" id="btn-alternar">
+                                        <span id="label-tipo">Nome</span> (F2)
+                                    </button>
+                                    <button class="btn btn-outline-primary" type="button" id="btn-buscar-cliente">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                                <input type="hidden" id="cliente_id" name="cliente_id">
+                            </div>
+
+                            <div id="dados-cliente" class="mt-2 p-2 bg-light rounded" style="display:none;">
+                                <strong id="cliente-nome"></strong><br>
+                                CPF/CNPJ: <span id="cliente-cpf"></span>
+                            </div>
+                            
+                            <!-- Convênio, Laboratório, Médico -->
+                            <div class="mb-3">
+                                <label for="convenio_id" class="form-label">Convênio:</label>
+                                <select class="form-select" id="convenio_id" name="convenio_id">
+                                    <option value="">(Nenhum)</option>
+                                    {% for c in convenios %}
+                                    <option value="{{ c.conv_id }}">{{ c.conv_nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- 👇 CORRIGIDO: faltava o "=" 👇 -->
+                            <div class="mb-3">
+                                <label for="laboratorio_id" class="form-label">Enviar para laboratório:</label>
+                                <select class="form-select" id="laboratorio_id" name="laboratorio_id">
+                                    <option value="">(Não enviar)</option>
+                                    {% for l in laboratorios %}
+                                    <option value="{{ l.lab_id }}">{{ l.lab_nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="medico_id" class="form-label">Médico (da receita):</label>
+                                <select class="form-select" id="medico_id" name="medico_id" disabled>
+                                    <option value="">(Aguardando receita)</option>
+                                    {% for m in medicos %}
+                                    <option value="{{ m.med_id }}">{{ m.med_nome }} - CRM {{ m.med_crm }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="data_emissao" class="form-label">Data de emissão:</label>
+                                <input type="date" class="form-control" id="data_emissao" name="data_emissao" value="{{ hoje.strftime('%Y-%m-%d') }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="data_prevista_cliente" class="form-label">Previsão para o cliente:</label>
+                                <input type="datetime-local" class="form-control" id="data_prevista_cliente" name="data_prevista_cliente">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Desconto:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" step="0.01" class="form-control" id="desconto_total" name="desconto_total" value="0.00" readonly>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Total:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" step="0.01" class="form-control" id="total_compra" name="total_compra" value="0.00" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita -->
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">
+                            <strong>Serviços</strong>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Descrição</th>
+                                        <th>V. Unit.</th>
+                                        <th>Qtd.</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-servicos">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Nenhum serviço adicionado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center mt-2">
+                                <button type="button" class="btn btn-outline-primary" onclick="abrirModalVendaServico()">
+                                    <i class="bi bi-plus"></i> Adicionar Serviço
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Produtos -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-success text-white">
+                            <strong>Produtos</strong>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Descrição (Código)</th>
+                                        <th>V. Unit.</th>
+                                        <th>Desconto (R$)</th>
+                                        <th>Total</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="corpo-tabela-produtos">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Nenhum produto adicionado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center mt-2">
+                                <button type="button" class="btn btn-outline-primary" onclick="abrirModalVendaProduto()">
+                                    <i class="bi bi-plus"></i> Adicionar Produto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-between">
+                <div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Encerrar (F9)
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="cancelarVenda()">
+                        <i class="bi bi-x-circle"></i> Cancelar (F12)
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Venda -->
+<div class="modal fade" id="modal-venda-produto" tabindex="-1" aria-labelledby="modalVendaProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalVendaProdutoLabel">OS Caixa - Produto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-venda-produto">
+                    <div class="mb-3">
+                        <label for="produto-codigo" class="form-label">Produto:</label>
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="produto-codigo" 
+                                   placeholder="SELECIONE UM PRODUTO" 
+                                   maxlength="7"
+                                   ondblclick="abrirListaProdutos(this)"
+                                   onchange="buscarItemVenda(this)">
+                            <span class="input-group-text">(Código de barra)</span>
+                            <button class="btn btn-outline-secondary" type="button" onclick="abrirListaProdutos(document.getElementById('produto-codigo'))">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" type="button" onclick="limparProduto()">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <small class="descricao-completa text-muted"></small>
+                        <input type="hidden" id="produto-id">
+                        <input type="hidden" id="produto-tipo">
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="prateleira-saldo" class="form-label">Prateleira:</label>
+                            <input type="text" class="form-control" id="prateleira-saldo" readonly value="Saldo">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="reserva-saldo" class="form-label">Reserva:</label>
+                            <input type="text" class="form-control" id="reserva-saldo" readonly value="Saldo">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label for="valor-unitario" class="form-label">Valor unitário:</label>
+                            <input type="number" step="0.01" class="form-control" id="valor-unitario" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="desconto" class="form-label">Desconto:</label>
+                            <input type="number" step="0.01" class="form-control" id="desconto" value="0.00">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="quantidade" class="form-label">Quantidade:</label>
+                            <select class="form-select" id="quantidade">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="desconto-percentual">
+                        <label class="form-check-label" for="desconto-percentual">Original % (F2)</label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="valor-total" class="form-label">Total:</label>
+                        <input type="number" step="0.01" class="form-control" id="valor-total" readonly>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="confirmarVenda()">
+                    <i class="bi bi-check-circle"></i> Ok
+                </button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== CLIENTE COM F2 =====
+let tipoBusca = 'nome';
+
+function atualizarPlaceholder() {
+    const placeholders = { nome: 'Nome', cpf: 'CPF/CNPJ', codigo: 'Código' };
+    document.getElementById('label-tipo').textContent = placeholders[tipoBusca];
+    document.getElementById('cliente_busca').placeholder = `Digite o ${placeholders[tipoBusca].toLowerCase()} do cliente`;
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F2') {
+        e.preventDefault();
+        tipoBusca = tipoBusca === 'nome' ? 'cpf' : tipoBusca === 'cpf' ? 'codigo' : 'nome';
+        atualizarPlaceholder();
+        document.getElementById('cliente_busca').focus();
+    }
+});
+
+document.getElementById('btn-alternar').addEventListener('click', function() {
+    tipoBusca = tipoBusca === 'nome' ? 'cpf' : tipoBusca === 'cpf' ? 'codigo' : 'nome';
+    atualizarPlaceholder();
+});
+
+document.getElementById('btn-buscar-cliente').addEventListener('click', async function() {
+    const termo = document.getElementById('cliente_busca').value.trim();
+    if (!termo) return;
+
+    const response = await fetch(`/caixa/buscar-cliente?termo=${encodeURIComponent(termo)}&tipo=${tipoBusca}`);
+    const data = await response.json();
+
+    if (data.cliente) {
+        document.getElementById('cliente_id').value = data.cliente.id;
+        document.getElementById('cliente-nome').textContent = data.cliente.nome;
+        document.getElementById('cliente-cpf').textContent = data.cliente.cpf_cnpj;
+        document.getElementById('dados-cliente').style.display = 'block';
+    } else {
+        alert('Cliente não encontrado.');
+        document.getElementById('dados-cliente').style.display = 'none';
+        document.getElementById('cliente_id').value = '';
+    }
+});
+
+atualizarPlaceholder();
+
+// ===== MODAL DE VENDA =====
+let modoModal = 'produto';
+
+function abrirModalVendaProduto() {
+    modoModal = 'produto';
+    new bootstrap.Modal(document.getElementById('modal-venda-produto')).show();
+    limparProduto();
+    document.getElementById('modalVendaProdutoLabel').textContent = 'OS Caixa - Produto';
+}
+
+function abrirModalVendaServico() {
+    modoModal = 'servico';
+    new bootstrap.Modal(document.getElementById('modal-venda-produto')).show();
+    limparProduto();
+    document.getElementById('modalVendaProdutoLabel').textContent = 'OS Caixa - Serviço';
+}
+
+function limparProduto() {
+    document.getElementById('produto-codigo').value = '';
+    document.getElementById('produto-id').value = '';
+    document.getElementById('produto-tipo').value = '';
+    document.querySelector('#modal-venda-produto .descricao-completa').textContent = '';
+    document.getElementById('valor-unitario').value = '';
+    document.getElementById('desconto').value = '0.00';
+    document.getElementById('quantidade').value = '1';
+    document.getElementById('desconto-percentual').checked = false;
+    document.getElementById('valor-total').value = '';
+    document.getElementById('prateleira-saldo').value = 'Saldo';
+    document.getElementById('reserva-saldo').value = 'Saldo';
+}
+
+async function buscarItemVenda(input) {
+    const codigo = input.value.trim();
+    if (!codigo || codigo.length !== 7) {
+        alert('Código deve ter exatamente 7 dígitos');
+        input.value = '';
+        input.focus();
+        return;
+    }
+
+    const primeiro = codigo[0];
+    if (!['0', '1', '2'].includes(primeiro)) {
+        alert('Código inválido!\nUse:\n0 = Lente\n1 = Armação\n2 = Serviço');
+        input.value = '';
+        input.focus();
+        return;
+    }
+
+    if (modoModal === 'servico' && primeiro !== '2') {
+        alert('Códigos de serviço devem começar com "2"');
+        input.value = '';
+        input.focus();
+        return;
+    }
+    if (modoModal === 'produto' && primeiro === '2') {
+        alert('Códigos de produto não podem começar com "2"');
+        input.value = '';
+        input.focus();
+        return;
+    }
+    
+    const response = await fetch(`/caixa/buscar-item-venda?codigo=${encodeURIComponent(codigo)}`);
+    const data = await response.json();
+    
+    const descricaoEl = document.querySelector('#modal-venda-produto .descricao-completa');
+    const idInput = document.getElementById('produto-id');
+    const tipoInput = document.getElementById('produto-tipo');
+    const valorVendaInput = document.getElementById('valor-unitario');
+    
+    if (data.item) {
+        if (data.item.tipo === 'armação' && data.item.saldo <= 0) {
+            alert('Estoque esgotado!');
+            input.value = '';
+            input.focus();
+            descricaoEl.textContent = '';
+            idInput.value = '';
+            tipoInput.value = '';
+            valorVendaInput.value = '';
+            document.getElementById('prateleira-saldo').value = 'Saldo';
+            document.getElementById('reserva-saldo').value = 'Saldo';
+            return;
+        }
+
+        descricaoEl.textContent = `${data.item.codigo} - ${data.item.descricao}`;
+        idInput.value = data.item.id;
+        tipoInput.value = data.item.tipo;
+        valorVendaInput.value = data.item.valor_venda.toFixed(2);
+        atualizarSaldoReserva(data.item);
+        
+        if (data.item.tipo === 'lente') {
+            setTimeout(() => alert('Tela de receita será aberta aqui.'), 300);
+        }
+        
+        calcularTotal();
+    } else {
+        descricaoEl.textContent = data.erro || 'Não encontrado';
+        idInput.value = '';
+        tipoInput.value = '';
+        valorVendaInput.value = '';
+        document.getElementById('desconto').value = '0.00';
+        document.getElementById('valor-total').value = '';
+        document.getElementById('prateleira-saldo').value = 'Saldo';
+        document.getElementById('reserva-saldo').value = 'Saldo';
+    }
+}
+
+function atualizarSaldoReserva(item) {
+    const prateleiraInput = document.getElementById('prateleira-saldo');
+    const reservaInput = document.getElementById('reserva-saldo');
+    
+    if (item.tipo === 'armação') {
+        prateleiraInput.value = item.saldo;
+        reservaInput.value = item.reserva;
+        prateleiraInput.disabled = false;
+        reservaInput.disabled = false;
+    } else {
+        prateleiraInput.value = 'N/A';
+        reservaInput.value = 'N/A';
+        prateleiraInput.disabled = true;
+        reservaInput.disabled = true;
+    }
+}
+
+function calcularTotal() {
+    const valorVenda = parseFloat(document.getElementById('valor-unitario').value) || 0;
+    const desconto = parseFloat(document.getElementById('desconto').value) || 0;
+    const quantidade = parseInt(document.getElementById('quantidade').value) || 1;
+    const percentual = document.getElementById('desconto-percentual').checked;
+    
+    let total = valorVenda * quantidade;
+    if (percentual) {
+        total -= (total * desconto / 100);
+    } else {
+        total -= desconto;
+    }
+    document.getElementById('valor-total').value = Math.max(0, total).toFixed(2);
+}
+
+function confirmarVenda() {
+    const produtoId = document.getElementById('produto-id').value;
+    const tipo = document.getElementById('produto-tipo').value; // 'lente', 'armação', etc.
+    
+    if (!produtoId) {
+        alert('Selecione um item válido.');
+        return;
+    }
+
+    const tbody = modoModal === 'servico' 
+        ? document.querySelector('#tabela-servicos tbody')
+        : document.getElementById('corpo-tabela-produtos');
+
+    const ultimaLinha = tbody.querySelector('tr:last-child');
+    if (ultimaLinha && ultimaLinha.querySelector('button')) {
+        ultimaLinha.remove();
+    }
+
+    const novaLinha = document.createElement('tr');
+    novaLinha.innerHTML = `
+        <td>${document.getElementById('produto-codigo').value} - ${document.querySelector('#modal-venda-produto .descricao-completa').textContent}</td>
+        <td>R$ ${parseFloat(document.getElementById('valor-unitario').value).toFixed(2)}</td>
+        <td>R$ ${parseFloat(document.getElementById('desconto').value).toFixed(2)}</td>
+        <td>R$ ${parseFloat(document.getElementById('valor-total').value).toFixed(2)}</td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick="removerLinha(this)">🗑️</button></td>
+    `;
+    tbody.appendChild(novaLinha);
+
+    const botaoLinha = document.createElement('tr');
+    botaoLinha.innerHTML = `
+        <td colspan="${modoModal === 'servico' ? '4' : '5'}" class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="${modoModal === 'servico' ? 'abrirModalVendaServico()' : 'abrirModalVendaProduto()'}">
+                <i class="bi bi-plus"></i> Adicionar ${modoModal === 'servico' ? 'Serviço' : 'Produto'}
+            </button>
+        </td>
+    `;
+    tbody.appendChild(botaoLinha);
+
+    // Fecha o modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modal-venda-produto'));
+    modal.hide();
+    limparProduto();
+
+    // 👇 NOVO: se for LENTE, abre a receita imediatamente 👇
+    if (tipo === 'lente') {
+        const osNumero = document.getElementById('os_numero').value;
+        window.location.href = `/caixa/receita?os_numero=${encodeURIComponent(osNumero)}&produto_id=${encodeURIComponent(produtoId)}`;
+    } else {
+        // Para armação/serviço, atualiza os totais
+        calcularTotaisGerais();
+    }
+}
+
+function removerLinha(botao) {
+    const linha = botao.closest('tr');
+    linha.remove();
+    
+    const tbody = linha.closest('tbody');
+    const linhasItens = tbody.querySelectorAll('tr:not(:last-child)');
+    if (linhasItens.length === 0) {
+        const botaoLinha = document.createElement('tr');
+        botaoLinha.innerHTML = `
+            <td colspan="${modoModal === 'servico' ? '4' : '5'}" class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="${modoModal === 'servico' ? 'abrirModalVendaServico()' : 'abrirModalVendaProduto()'}">
+                    <i class="bi bi-plus"></i> Adicionar ${modoModal === 'servico' ? 'Serviço' : 'Produto'}
+                </button>
+            </td>
+        `;
+        tbody.appendChild(botaoLinha);
+    }
+    calcularTotaisGerais();
+}
+
+function cancelarVenda() {
+    if (confirm('Tem certeza que deseja cancelar esta venda?')) {
+        window.location.href = "{{ url_for('caixa.index') }}";
+    }
+}
+
+// Event listeners
+document.getElementById('desconto').addEventListener('input', calcularTotal);
+document.getElementById('quantidade').addEventListener('change', calcularTotal);
+document.getElementById('desconto-percentual').addEventListener('change', calcularTotal);
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F2' && document.activeElement.id === 'desconto') {
+        e.preventDefault();
+        document.getElementById('desconto-percentual').checked = !document.getElementById('desconto-percentual').checked;
+        calcularTotal();
+    }
+});
+
+// Calcula total geral e desconto total
+function calcularTotaisGerais() {
+    let totalProdutos = 0;
+    let descontoProdutos = 0;
+
+    document.querySelectorAll('#corpo-tabela-produtos tr:not(:last-child)').forEach(linha => {
+        if (linha.querySelector('.valor-total')) {
+            const total = parseFloat(linha.querySelector('.valor-total').value) || 0;
+            const valorUnit = parseFloat(linha.querySelector('.valor-venda').value) || 0;
+            const desconto = valorUnit - total;
+            totalProdutos += total;
+            descontoProdutos += Math.max(0, desconto);
+        }
+    });
+
+    let totalServicos = 0;
+    let descontoServicos = 0;
+    document.querySelectorAll('#tabela-servicos tr:not(:last-child)').forEach(linha => {
+        if (linha.cells && linha.cells.length >= 4) {
+            const total = parseFloat(linha.cells[3].textContent.replace('R$ ', '').replace(',', '.')) || 0;
+            const valorUnit = parseFloat(linha.cells[1].textContent.replace('R$ ', '').replace(',', '.')) || 0;
+            const qtd = parseInt(linha.cells[2].textContent) || 1;
+            const totalBruto = valorUnit * qtd;
+            const desconto = totalBruto - total;
+            totalServicos += total;
+            descontoServicos += Math.max(0, desconto);
+        }
+    });
+
+    const descontoTotal = descontoProdutos + descontoServicos;
+    const totalGeral = totalProdutos + totalServicos;
+
+    document.getElementById('desconto_total').value = descontoTotal.toFixed(2);
+    document.getElementById('total_compra').value = totalGeral.toFixed(2);
+}
+
+// Inicializa os totais ao carregar
+document.addEventListener('DOMContentLoaded', function() {
+    calcularTotaisGerais();
+});
+</script>
+{% endblock %}

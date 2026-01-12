@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Armação{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Cadastrar Armação</h2>
+    <p><strong>Item da NF-e:</strong> R$ {{ '%.2f'|format(item.preco_unitario) }}</p>
+
+    <form method="POST">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Tipo</label>
+                <select name="tipo_aramacao" class="form-select">
+                    <option value="AR">AR - Receituário</option>
+                    <option value="OC">OC - Óculos Solar</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Iniciais (4 letras)</label>
+                <input type="text" name="descricao_iniciais" class="form-control" maxlength="4" placeholder="ex: KENN">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Código da Armação (ex: KP4510)</label>
+                <input type="text" name="peca" class="form-control" placeholder="ex: KP4510">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Cor</label>
+                <input type="text" name="cor" class="form-control" placeholder="ex: 003">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Tamanho</label>
+                <input type="text" name="tamanho" class="form-control" placeholder="ex: 52">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Ponte</label>
+                <input type="text" name="ponte" class="form-control" placeholder="ex: 19">
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success">Cadastrar e Associar</button>
+            <a href="{{ url_for('entradas.editar_entrada', entrada_id=item.entrada_id) }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

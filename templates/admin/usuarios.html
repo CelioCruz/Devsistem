@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Usuários{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Usuários do Sistema</h2>
+        <a href="{{ url_for('admin.cadastro') }}" class="btn btn-outline-secondary btn-sm">← Voltar ao Cadastro</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 id="form-title">Cadastrar Novo Usuário</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" id="cadastro-usuario-form">
+                <input type="hidden" id="us_reg" name="us_reg" value="">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="us_cad">Nome Completo:</label>
+                            <input type="text" class="form-control" id="us_cad" name="us_cad" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="us_email">E-mail (Login):</label>
+                            <input type="email" class="form-control" id="us_email" name="us_email" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="us_senha">Senha:</label>
+                            <input type="password" class="form-control" id="us_senha" name="us_senha" placeholder="Deixe em branco para manter a senha atual">
+                        </div>
+                    </div>
+                    <!-- NOVO CAMPO: Empresa -->
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="us_empresa_id">Empresa:</label>
+                            <select class="form-control" id="us_empresa_id" name="us_empresa_id">
+                                <option value="">Selecione...</option>
+                                {% for empresa in empresas %}
+                                <option value="{{ empresa.emp_reg }}">{{ empresa.emp_nome_fantasia }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <!-- CAMPO: Ambiente (opcional) -->
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="us_ambiente_id">Ambiente:</label>
+                            <select class="form-control" id="us_ambiente_id" name="us_ambiente_id">
+                                <option value="">Selecione...</option>
+                                {% for ambiente in ambientes %}
+                                <option value="{{ ambiente.amb_id }}">{{ ambiente.amb_nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Usuário</button>
+                <button type="button" class="btn btn-secondary" id="btn-limpar">Limpar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Usuários Cadastrados</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Empresa</th>
+                        <th>Ambiente</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.us_reg }}</td>
+                        <td>{{ usuario.us_cad }}</td>
+                        <td>{{ usuario.us_email }}</td>
+                        <td>{{ usuario.empresa.emp_nome_fantasia if usuario.empresa else 'N/A' }}</td>
+                        <td>{{ usuario.ambiente.amb_nome if usuario.ambiente else 'N/A' }}</td>
+                        <td>
+                            {% if usuario.us_ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.us_email != 'cruz@devsoft' %}
+                                <form method="POST" action="{{ url_for('admin.listar_usuarios') }}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
+                                    <input type="hidden" name="excluir_usuario" value="1">
+                                    <input type="hidden" name="us_reg" value="{{ usuario.us_reg }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        Excluir
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin.toggle_usuario_ativo') }}" style="display:inline;">
+                                    <input type="hidden" name="us_reg" value="{{ usuario.us_reg }}">
+                                    <input type="hidden" name="ativo" value="{{ 'false' if usuario.us_ativo else 'true' }}">
+                                    <button type="submit" class="btn btn-sm btn-{{ 'secondary' if usuario.us_ativo else 'success' }}">
+                                        {{ 'Desativar' if usuario.us_ativo else 'Ativar' }}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Evento para o botão Limpar
+    document.getElementById('btn-limpar').addEventListener('click', function() {
+        document.getElementById('form-title').textContent = 'Cadastrar Novo Usuário';
+        document.getElementById('cadastro-usuario-form').reset();
+        document.getElementById('us_reg').value = '';
+        document.getElementById('us_senha').placeholder = 'Senha';
+    });
+
+    // Evento para o botão Salvar (limpa o formulário após o envio de um novo cadastro)
+    document.getElementById('cadastro-usuario-form').addEventListener('submit', function() {
+        // Limpa o formulário após o envio (se for um novo cadastro)
+        if (!document.getElementById('us_reg').value) {
+            this.reset();
+            document.getElementById('us_reg').value = '';
+            document.getElementById('form-title').textContent = 'Cadastrar Novo Usuário';
+            document.getElementById('us_senha').placeholder = 'Senha';
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Notas Fiscais de Saída{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="bi bi-receipt me-2"></i> Notas Fiscais de Saída</h3>
+        <a href="{{ url_for('saidas.index') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar para Saidas
+        </a>
+    </div>
+
+    <div class="mb-3">
+        <a href="{{ url_for('saidas.nova_nf_saida') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle me-1"></i> Emitir Nova NF-e
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if nfes %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>NF-e</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nf in nfes %}
+                        <tr>
+                            <td>{{ nf.snf_numero }}</td>
+                            <td>{{ nf.cliente.cli_nome if nf.cliente else '–' }}</td>
+                            <td>{{ nf.snf_data_emissao.strftime('%d/%m/%Y') }}</td>
+                            <td>R$ {{ "%.2f"|format(nf.snf_valor_total) }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if nf.snf_status == 'emitida' else 'danger' }}">
+                                    {{ nf.snf_status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-info">Nenhuma NF-e emitida.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Administrador{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Administrador</h2>
+    <p>Conteúdo do ambiente administrador vai aqui.</p>
+
+    <div class="list-group mt-3">
+        <a href="{{ url_for('admin.listar_usuarios') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-users"></i> Usuários
+        </a>
+        <a href="{{ url_for('admin.listar_empresas') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-building"></i> Empresas
+        </a>
+        <a href="{{ url_for('admin.listar_ambientes') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-sitemap"></i> Ambientes
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Pesquisa de Lentes - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-search me-2"></i> Pesquisa de Lentes</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar para o Caixa</a>
+    </div>
+
+    <div class="p-4">
+        <form method="GET" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="termo" class="form-control" placeholder="Buscar por código, tipo ou índice">
+                <button class="btn btn-primary" type="submit">Pesquisar</button>
+            </div>
+        </form>
+
+        {% if lentes %}
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Índice</th>
+                    <th>Estoque</th>
+                    <th>Preço</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in lentes %}
+                <tr>
+                    <td>{{ l.codigo }}</td>
+                    <td>{{ l.tipo }}</td>
+                    <td>{{ l.indice }}</td>
+                    <td>{{ l.estoque }}</td>
+                    <td>R$ {{ "%.2f"|format(l.preco)|replace('.', ',') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">Nenhuma lente encontrada.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

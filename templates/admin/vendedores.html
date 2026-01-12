@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - Vendedores{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>👥 Cadastro de Vendedores</h3>
+    <a href="{{ url_for('admin.cadastro', amb_id=1) }}" class="btn btn-outline-secondary btn-sm">← Voltar ao Cadastro</a>
+</div>
+
+<!-- Formulário de Cadastro -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <i class="fas fa-plus me-2"></i>
+        <strong>➕ Novo Vendedor</strong>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">NOME COMPLETO *</label>
+                    <input type="text" class="form-control" id="vend_nome" name="vend_nome"
+                           placeholder="Ex: JOÃO SILVA"
+                           oninput="this.value = this.value.toUpperCase()"
+                           required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">EMPRESA *</label>
+                    <input type="text" class="form-control" id="vend_empresa" name="vend_empresa"
+                           placeholder="Ex: ALIMENTOS S/A"
+                           oninput="this.value = this.value.toUpperCase()"
+                           required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">
+                <i class="fas fa-check me-1"></i> Salvar Vendedor
+            </button>
+        </form>
+    </div>
+</div>
+<form method="POST">
+    <!-- Campo oculto para edição -->
+    {% if vendedor_edit %}
+    <input type="hidden" name="vend_reg" value="{{ vendedor_edit.vend_reg }}">
+    {% endif %}
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">NOME COMPLETO *</label>
+            <input type="text" class="form-control" id="vend_nome" name="vend_nome"
+                   value="{{ vendedor_edit.vend_nome if vendedor_edit else request.form.vend_nome or '' }}"
+                   placeholder="Ex: JOÃO SILVA"
+                   oninput="this.value = this.value.toUpperCase()"
+                   required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">EMPRESA *</label>
+            <input type="text" class="form-control" id="vend_empresa" name="vend_empresa"
+                   value="{{ vendedor_edit.vend_empresa if vendedor_edit else request.form.vend_empresa or '' }}"
+                   placeholder="Ex: ALIMENTOS S/A"
+                   oninput="this.value = this.value.toUpperCase()"
+                   required>
+        </div>
+    </div>
+    
+    <!-- Alterar o texto do botão dinamicamente -->
+    <button type="submit" class="btn btn-success mt-3">
+        <i class="fas fa-check me-1"></i> 
+        {{ 'Atualizar Vendedor' if vendedor_edit else 'Salvar Vendedor' }}
+    </button>
+</form>
+
+<!-- Lista de Vendedores -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center">
+        <i class="fas fa-clipboard-list me-2"></i>
+        <strong>📋 Vendedores Cadastrados</strong>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>CÓDIGO</th>
+                        <th>VENDEDOR</th>
+                        <th>EMPRESA</th>
+                        <th>ATIVO</th>
+                        <th>DATA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if vendedores %}
+                        {% for v in vendedores %}
+                        <tr>
+                            <td><strong>{{ v.vend_codigo }}</strong></td>
+                            <td>{{ v.vend_nome|upper }}</td>
+                            <td>{{ v.vend_empresa|upper }}</td>
+                            <td>
+                                {% if v.vend_ativo %}
+                                    <span class="badge bg-success">SIM</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">NÃO</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ v.vend_datcad.strftime('%d/%m/%Y') if v.vend_datcad else '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_vendedor', id=v.vend_reg) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form method="POST" action="{{ url_for('admin.toggle_vendedor_ativo') }}" style="display:inline;">
+                                    <input type="hidden" name="vend_reg" value="{{ v.vend_reg }}">
+                                    <input type="hidden" name="ativo" value="false">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Desativar vendedor?')">Desativar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">NENHUM VENDEDOR CADASTRADO.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

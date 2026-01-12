@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - Operações para Conciliação{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="fas fa-sync-alt me-2"></i> Operações para Conciliação</h3>
+    <button class="btn btn-outline-secondary btn-sm" 
+        onclick="window.location.href='{{ url_for('admin.cadastro') }}'">
+        ← Voltar ao Cadastro
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white d-flex align-items-center">
+        <i class="fas fa-clipboard-list me-2"></i>
+        <strong>📋 Operações Cadastradas</strong>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('admin.nova_operacao_conciliacao') }}" class="btn btn-success mb-3">+ Nova Operação</a>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>CÓD.</th>
+                        <th>DESCRIÇÃO</th>
+                        <th>TIPO</th>
+                        <th>AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if operacoes %}
+                        {% for o in operacoes %}
+                        <tr>
+                            <td>{{ o.opc_reg }}</td>
+                            <td>{{ o.opc_descricao|upper }}</td>
+                            <td>
+                                {% if o.opc_tipo == 'entrada' %}ENTRADA
+                                {% elif o.opc_tipo == 'saida' %}SAÍDA
+                                {% else %}{{ o.opc_tipo|upper }}{% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_operacao_conciliacao', id=o.opc_reg) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form method="POST" action="{{ url_for('admin.toggle_operacao_conciliacao_ativo') }}" style="display:inline;">
+                                    <input type="hidden" name="opc_reg" value="{{ o.opc_reg }}">
+                                    <input type="hidden" name="ativo" value="{% if o.opc_ativo %}false{% else %}true{% endif %}">
+                                    <button type="submit" class="btn btn-sm btn-outline-{% if o.opc_ativo %}danger{% else %}success{% endif %}" 
+                                        onclick="return confirm('{% if o.opc_ativo %}Desativar{% else %}Ativar{% endif %} operação?')">
+                                        {% if o.opc_ativo %}Desativar{% else %}Ativar{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">NENHUMA OPERAÇÃO PARA CONCILIAÇÃO CADASTRADA.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

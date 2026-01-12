@@ -1,0 +1,9 @@
+<!-- Em cada linha da tabela -->
+<td>
+    <form method="POST" action="{{ url_for('entradas.conferir_montagem', os_numero=os.os_numero) }}">
+        <button type="submit" class="btn btn-sm btn-success"
+                onclick="return confirm('Confirmar que o serviço está montado e conferido?')">
+            <i class="bi bi-check2-square me-1"></i> Conferir Montagem
+        </button>
+    </form>
+</td>

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Saídas - Devolução{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-arrow-return-left me-2 text-danger"></i> Devolução</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="p-3">
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Data</th>
+                    <th>CV</th>
+                    <th>Cliente</th>
+                    <th>Tipo</th>
+                    <th>Valor Crédito</th>
+                    <th>Usuário</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in devolucoes %}
+                <tr>
+                    <td>{{ d.data_devolucao.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ d.cv_numero }}</td>
+                    <td>{{ d.cliente.nome if d.cliente else 'ID: ' ~ d.cliente_id }}</td>
+                    <td>
+                        {% if d.tipo == 'total' %}
+                            <span class="badge bg-danger">Cancelamento Total</span>
+                        {% else %}
+                            <span class="badge bg-warning">Devolução Parcial</span>
+                        {% endif %}
+                    </td>
+                    <td>R$ {{ "%.2f"|format(d.valor_credito)|replace('.', ',') }}</td>
+                    <td>{{ d.usuario.us_cad if d.usuario else d.usuario_id }}</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

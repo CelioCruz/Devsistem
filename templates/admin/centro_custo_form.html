@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - {% if centro %}Editar Centro de Custo{% else %}Novo Centro de Custo{% endif %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>
+        <i class="fas fa-chart-pie me-2"></i>
+        {% if centro %}Editar Centro de Custo{% else %}Novo Centro de Custo{% endif %}
+    </h3>
+    <button class="btn btn-outline-secondary btn-sm"
+        onclick="window.location.href='{{ url_for('admin.listar_centros_custo') }}'">
+        ← Voltar aos Centros de Custo
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <i class="fas fa-edit me-2"></i>
+        <strong>📝 {% if centro %}Editar{% else %}Cadastrar{% endif %} Centro de Custo</strong>
+    </div>
+    <div class="card-body">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="cct_codigo" class="form-label">Código *</label>
+                    <input type="text" class="form-control" id="cct_codigo" name="cct_codigo"
+                        value="{{ request.form.cct_codigo or (centro.cct_codigo if centro else '') }}" required maxlength="20">
+                </div>
+                <div class="col-md-8">
+                    <label for="cct_descricao" class="form-label">Descrição *</label>
+                    <input type="text" class="form-control" id="cct_descricao" name="cct_descricao"
+                        value="{{ request.form.cct_descricao or (centro.cct_descricao if centro else '') }}" required>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Salvar Centro de Custo
+                </button>
+                <a href="{{ url_for('admin.listar_centros_custo') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

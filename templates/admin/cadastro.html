@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastros{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Cadastros</h2>
+    <p>Conteúdo do ambiente cadastros vai aqui.</p>
+
+    <!-- Menu Secundário -->
+    {% set menu_itens = [
+        {'label': 'Usuários', 'url': url_for('admin.listar_usuarios'), 'icon': 'fas fa-users'},
+        {'label': 'Vendedores', 'url': url_for('admin.listar_vendedores'), 'icon': 'fas fa-user-tie'},
+        {'label': 'Clientes', 'url': url_for('admin.listar_clientes'), 'icon': 'fas fa-user-friends'},
+        {'label': 'Fornecedores', 'url': url_for('admin.listar_fornecedores'), 'icon': 'fas fa-truck'},
+        {'label': 'Produtos', 'url': url_for('admin.listar_produtos'), 'icon': 'fas fa-box'},
+        {'label': 'Bancos', 'url': url_for('admin.listar_bancos'), 'icon': 'fas fa-building-columns'},
+        {'label': 'Tipos de Cartão', 'url': url_for('admin.listar_tipos_cartao'), 'icon': 'fas fa-credit-card'},
+       
+    ] %}
+    {% include 'partials/menu_secundario.html' %}
+
+</div>
+{% endblock %}

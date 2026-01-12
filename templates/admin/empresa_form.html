@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if empresa else 'Nova' }} Empresa{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ 'Editar Empresa' if empresa else 'Nova Empresa' }}</h2>
+        <a href="{{ url_for('admin.listar_empresas') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="emp_nome_fantasia">Nome Fantasia *</label>
+                            <input type="text" class="form-control" id="emp_nome_fantasia" name="emp_nome_fantasia"
+                                   value="{{ empresa.emp_nome_fantasia if empresa else '' }}"
+                                   oninput="this.value = this.value.toUpperCase()"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="emp_razao_social">Razão Social *</label>
+                            <input type="text" class="form-control" id="emp_razao_social" name="emp_razao_social"
+                                   value="{{ empresa.emp_razao_social if empresa else '' }}"
+                                   oninput="this.value = this.value.toUpperCase()"
+                                   required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="emp_cnpj">CNPJ *</label>
+                            <input type="text" class="form-control" id="emp_cnpj" name="emp_cnpj"
+                                   value="{{ empresa.emp_cnpj if empresa else '' }}"
+                                   placeholder="00.000.000/0000-00"
+                                   maxlength="18"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="emp_ie">Inscrição Estadual</label>
+                            <input type="text" class="form-control" id="emp_ie" name="emp_ie"
+                                   value="{{ empresa.emp_ie if empresa else '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="emp_im">Inscrição Municipal</label>
+                            <input type="text" class="form-control" id="emp_im" name="emp_im"
+                                   value="{{ empresa.emp_im if empresa else '' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="emp_cep">CEP</label>
+                            <input type="text" class="form-control" id="emp_cep" name="emp_cep"
+                                   value="{{ empresa.emp_cep if empresa else '' }}"
+                                   placeholder="00000-000"
+                                   maxlength="9"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\d{5})(\d{3})/, '$1-$2')">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="emp_endereco">Endereço</label>
+                            <input type="text" class="form-control" id="emp_endereco" name="emp_endereco"
+                                   value="{{ empresa.emp_endereco if empresa else '' }}"
+                                   oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="emp_bairro">Bairro</label>
+                            <input type="text" class="form-control" id="emp_bairro" name="emp_bairro"
+                                   value="{{ empresa.emp_bairro if empresa else '' }}"
+                                   oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="emp_cidade">Cidade</label>
+                            <input type="text" class="form-control" id="emp_cidade" name="emp_cidade"
+                                   value="{{ empresa.emp_cidade if empresa else '' }}"
+                                   oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="emp_uf">UF</label>
+                            <input type="text" class="form-control" id="emp_uf" name="emp_uf"
+                                   value="{{ empresa.emp_uf if empresa else '' }}"
+                                   maxlength="2"
+                                   oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="emp_telefone">Telefone</label>
+                            <input type="text" class="form-control" id="emp_telefone" name="emp_telefone"
+                                   value="{{ empresa.emp_telefone if empresa else '' }}"
+                                   placeholder="(11) 99999-9999"
+                                   maxlength="15">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="emp_email">E-mail</label>
+                    <input type="email" class="form-control" id="emp_email" name="emp_email"
+                           value="{{ empresa.emp_email if empresa else '' }}">
+                </div>
+
+                <!-- Campo para selecionar os ambientes -->
+                <div class="form-group">
+                    <label for="ambientes">Ambientes Liberados:</label>
+                    <select multiple class="form-control" id="ambientes" name="ambientes[]" size="5">
+                        {% for ambiente in todos_ambientes %}
+                        {% if empresa and ambiente in empresa.ambientes_permitidos %}
+                            <option value="{{ ambiente.amb_id }}" selected>
+                                {{ ambiente.amb_nome }}
+                            </option>
+                        {% else %}
+                            <option value="{{ ambiente.amb_id }}">
+                                {{ ambiente.amb_nome }}
+                            </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Segure Ctrl (Windows) ou Cmd (Mac) para selecionar múltiplos ambientes.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    {{ 'Atualizar Empresa' if empresa else 'Cadastrar Empresa' }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

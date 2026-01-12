@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumo do Caixa - Impressão</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            body {
+                font-size: 12pt;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20mm;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            margin-top: 30px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h3>RESUMO DO CAIXA</h3>
+        <p><strong>Data:</strong> {{ caixa.cai_data.strftime('%d/%m/%Y') }} | <strong>Loja:</strong> {{ caixa.cai_loja }}</p>
+        <p><strong>Usuário:</strong> {{ current_user.us_cad }} | <strong>Hora Abertura:</strong> {{ caixa.cai_hora_abertura.strftime('%H:%M:%S') }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Valor (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>SALDO INICIAL</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_saldo_inicial)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>DINHEIRO (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_dinheiro_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>CHEQUE (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_cheque_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>PIX (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_pix_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>CARTÃO (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_cartao_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>TICKET (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_ticket_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>CONVÊNIO (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_convenio_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>BANCO (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_banco_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>CARNÊ (Caixa)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_carnet_caixa)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>RETIRADAS (Dinheiro)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_dinheiro_retrada)|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>RETIRADAS (Cheque)</td>
+                <td>R$ {{ "%.2f"|format(caixa.cai_cheque_retrada)|replace('.', ',') }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Total da Conferência:</h5>
+            <p>R$ {{ "%.2f"|format(caixa.cai_total_conferencia)|replace('.', ',') }}</p>
+        </div>
+        <div class="col-md-6">
+            <h5>Total Registrado pelo Sistema:</h5>
+            <p>R$ {{ "%.2f"|format(caixa.cai_total_sistema)|replace('.', ',') }}</p>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <h5>Falta:</h5>
+            <p style="color: {% if caixa.cai_falta < 0 %}red{% else %}green{% endif %};">
+                R$ {{ "%.2f"|format(caixa.cai_falta)|replace('.', ',') }}
+            </p>
+        </div>
+        <div class="col-md-6">
+            <h5>Malote (Dinheiro):</h5>
+            <p>R$ {{ "%.2f"|format(caixa.cai_malote)|replace('.', ',') }}</p>
+        </div>
+    </div>
+
+    <div class="footer no-print">
+        <p>Este documento foi gerado automaticamente pelo sistema. Não necessita de assinatura.</p>
+    </div>
+
+    <script>
+        // Imprime automaticamente ao carregar
+        window.onload = function() {
+            window.print();
+            // Volta para a tela anterior após 5 segundos
+            setTimeout(function() {
+                window.history.back();
+            }, 5000);
+        };
+    </script>
+
+</body>
+</html>

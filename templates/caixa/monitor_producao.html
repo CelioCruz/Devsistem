@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h3>Monitor de Produção</h3>
+    <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+</div>
+
+<table class="table table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>OS</th>
+            <th>CV</th>
+            <th>Cliente</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for os in ordens %}
+        <tr>
+            <td>{{ os.os_numero }}</td>
+            <td>{{ os.cv_numero or '-' }}</td>
+            <td>{{ os.cliente.cli_nome|upper if os.cliente else '-' }}</td>
+            <td>
+                {# 👇 BADGE DE STATUS #}
+                {% if os.status == 'venda_concluida' %}
+                    <span class="badge bg-info">Venda Concluída - Serviço na Loja</span>
+                {% elif os.status == 'liberado_compra' %}
+                    <span class="badge bg-success">Liberado Compra</span>
+                {% elif os.status == 'devolucao_quebra_armação' %}
+                    <span class="badge bg-warning text-dark">Quebra de Armação</span>
+                {% elif os.status == 'servico_montado_conferido' %}
+                    <span class="badge bg-success">Serviço Montado e Conferido</span>
+                {% elif os.status == 'servico_pronto_entrega' %}
+                    <span class="badge bg-primary">Pronto para Entrega</span>
+                {% elif os.status == 'garantia' %}
+                    <span class="badge bg-warning text-dark">GARANTIA</span>
+                {% else %}
+                    <span class="badge bg-secondary">{{ os.status|replace('_', ' ')|title }}</span>
+                {% endif %}
+            </td>
+            <td>
+                {# 👇 AÇÕES POR STATUS #}
+                <a href="{{ url_for('caixa.visualizar_os', os_numero=os.os_numero) }}" 
+                   class="btn btn-sm btn-outline-primary me-1">Visualizar</a>
+
+                {% if os.status == 'devolucao_quebra_armação' %}
+                    <form method="POST" action="{{ url_for('caixa.reativar_com_nova_armação', os_numero=os.os_numero) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success"
+                                onclick="return confirm('Reativar esta OS para nova armação?')">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Nova Armação
+                        </button>
+                    </form>
+                {% elif os.status == 'servico_montado_conferido' %}
+                    <form method="POST" action="{{ url_for('caixa.receber_servico', os_numero=os.os_numero) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-info"
+                                onclick="return confirm('Confirmar recebimento do serviço?')">
+                            <i class="bi bi-check-circle me-1"></i> Receber Serviço
+                        </button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

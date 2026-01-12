@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Cadastros Automáticos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Produtos Cadastrados Automaticamente</h2>
+    <p class="text-muted">Gerados a partir de entradas por NF-e.</p>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar ao Controle de Entradas
+        </a>
+    </div>
+
+    {% if cadastros %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Código</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                    <th>Preço Custo (R$)</th>
+                    <th>Usuário</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in cadastros %}
+                <tr>
+                    <td>{{ c.codigo }}</td>
+                    <td>{{ c.descricao }}</td>
+                    <td>
+                        {% if c.tipo == 'armacao' %}
+                            <span class="badge bg-primary">Armação</span>
+                        {% elif c.tipo == 'lente' %}
+                            <span class="badge bg-success">Lente</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ c.tipo }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ '%.2f'|format(c.preco_custo) }}</td>
+                    <td>{{ c.usuario.us_email if c.usuario else '–' }}</td>
+                    <td>{{ c.data_cadastro.strftime('%d/%m/%Y %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Nenhum cadastro automático encontrado.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

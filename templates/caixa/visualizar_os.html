@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h3>OS {{ ordem.os_numero }} - CV {{ ordem.cv_numero }}</h3>
+    <a href="{{ url_for('caixa.monitor_producao') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p><strong>Loja:</strong> {{ ordem.loja_id }}</p>
+        <p><strong>Cliente:</strong> {{ ordem.cliente.cli_nome|upper if ordem.cliente else 'Não informado' }}</p>
+        <p><strong>Data:</strong> {{ ordem.data_emissao.strftime('%d/%m/%Y %H:%M') }}</p>
+        <p><strong>Status:</strong> 
+            {% if ordem.status == 'venda_concluida' %}Venda Concluída - Serviço na Loja
+            {% elif ordem.status == 'liberado_compra' %}Liberado Compra{% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- Ações só se estiver em "venda_concluida" -->
+{% if ordem.status == 'venda_concluida' %}
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <form method="POST" action="{{ url_for('caixa.translado_loja_estoque', os_numero=ordem.os_numero) }}">
+        <button type="submit" class="btn btn-success" 
+                onclick="return confirm('Confirmar translado para estoque?')">
+            Translado Loja → Estoque
+        </button>
+    </form>
+    <form method="POST" action="{{ url_for('caixa.cancelar_os', os_numero=ordem.os_numero) }}">
+        <button type="submit" class="btn btn-outline-danger" 
+                onclick="return confirm('Cancelar esta OS?')">
+            Cancelar OS
+        </button>
+    </form>
+</div>
+{% endif %}
+{% if ordem.status == 'servico_devolvido_compra' and ordem.observacao_devolucao %}
+<div class="alert alert-danger mt-4">
+    <strong><i class="bi bi-exclamation-triangle me-1"></i> Devolvido para Compra</strong>
+    <p class="mb-0 mt-2">{{ ordem.observacao_devolucao|nl2br }}</p>
+    {% if ordem.data_emissao %}
+        <small class="text-muted">Registrado em: {{ ordem.data_emissao.strftime('%d/%m/%Y %H:%M') }}</small>
+    {% endif %}
+</div>
+{% endif %}
+{% if ordem.observacao_devolucao %}
+<div class="alert alert-info mt-3">
+    <strong><i class="bi bi-journal-text me-1"></i> Observação de Devolução:</strong>
+    <p class="mb-0">{{ ordem.observacao_devolucao }}</p>
+</div>
+{% endif %}
+{% if ordem.status == 'armação_enviada_montagem' %}
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+    <form method="POST" action="{{ url_for('caixa.enviar_armação_montagem', os_numero=ordem.os_numero) }}" style="display:none;">
+        <!-- Já existe, mas agora adicionamos a quebra -->
+    </form>
+    
+    <!-- ✅ NOVO: Botão para registrar quebra -->
+    <a href="{{ url_for('caixa.registrar_quebra_armação', os_numero=ordem.os_numero) }}" 
+       class="btn btn-warning">
+        <i class="bi bi-hammer me-1"></i> Registrar Quebra de Armação
+    </a>
+</div>
+{% endif %}
+{% if ordem.status == 'devolucao_quebra_armação' %}
+<div class="alert alert-warning mt-4">
+    <strong><i class="bi bi-hammer me-1"></i> Quebra de Armação Registrada</strong>
+    <p class="mb-0 mt-2">{{ ordem.observacao_devolucao|nl2br }}</p>
+    
+    <!-- Botão de reativação -->
+    <form method="POST" action="{{ url_for('caixa.reativar_com_nova_armação', os_numero=ordem.os_numero) }}" class="mt-3">
+        <button type="submit" class="btn btn-success"
+                onclick="return confirm('Confirmar reativação com nova armação?')">
+            <i class="bi bi-glasses me-1"></i> Reativar com Nova Armação
+        </button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

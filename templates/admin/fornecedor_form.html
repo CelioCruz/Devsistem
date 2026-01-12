@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - {% if fornecedor %}Editar Fornecedor{% else %}Novo Fornecedor{% endif %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>🏢 {% if fornecedor %}Editar Fornecedor{% else %}Novo Fornecedor{% endif %}</h3>
+    <a href="{{ url_for('admin.listar_fornecedores') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <strong>{% if fornecedor %}✏️ Editar Fornecedor{% else %}➕ Novo Fornecedor{% endif %}</strong>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+
+            <!-- CNPJ -->
+            <div class="mb-3">
+                <label for="forn_cnpj" class="form-label">CNPJ (somente números) *</label>
+                <input type="text" class="form-control" id="forn_cnpj" name="forn_cnpj"
+                       value="{{ fornecedor.forn_cnpj if fornecedor else '' }}"
+                       placeholder="12345678000195" maxlength="14" required>
+                <small class="text-muted">Digite o CNPJ para verificar se já está cadastrado.</small>
+            </div>
+
+            <!-- Razão Social -->
+            <div class="mb-3">
+                <label for="forn_razao" class="form-label">RAZÃO SOCIAL *</label>
+                <input 
+                    type="text" 
+                    name="forn_razao" 
+                    class="form-control"
+                    value="{{ fornecedor.forn_razao if fornecedor else request.form.forn_razao or '' }}"
+                    required
+                >
+            </div>
+
+            <!-- Nome Fantasia -->
+            <div class="mb-3">
+                <label for="forn_fantasia" class="form-label">NOME FANTASIA</label>
+                <input type="text" class="form-control" id="forn_fantasia" name="forn_fantasia"
+                       value="{{ fornecedor.forn_fantasia if fornecedor else '' }}"
+                       oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <!-- Representante -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="forn_representante" class="form-label">REPRESENTANTE</label>
+                    <input type="text" class="form-control" id="forn_representante" name="forn_representante"
+                           value="{{ fornecedor.forn_representante if fornecedor else '' }}"
+                           oninput="this.value = this.value.toUpperCase()">
+                </div>
+                <div class="col-md-6">
+                    <label for="forn_tel_representante" class="form-label">TELEFONE DO REPRESENTANTE</label>
+                    <input type="text" class="form-control" id="forn_tel_representante" name="forn_tel_representante"
+                           value="{{ fornecedor.forn_tel_representante if fornecedor else '' }}"
+                           placeholder="(11) 99999-9999">
+                </div>
+            </div>
+
+            <!-- CEP -->
+            <div class="mb-3">
+                <label for="forn_cep" class="form-label">CEP</label>
+                <input type="text" class="form-control" id="forn_cep" name="forn_cep"
+                       value="{{ fornecedor.forn_cep if fornecedor and fornecedor.forn_cep else '' }}"
+                       placeholder="00000-000">
+            </div>
+
+            <!-- Endereço -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label for="forn_endereco" class="form-label">ENDEREÇO</label>
+                        <input type="text" class="form-control" id="forn_endereco" name="forn_endereco"
+                               value="{{ fornecedor.forn_endereco if fornecedor else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="forn_bairro" class="form-label">BAIRRO</label>
+                        <input type="text" class="form-control" id="forn_bairro" name="forn_bairro"
+                               value="{{ fornecedor.forn_bairro if fornecedor else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="forn_cidade" class="form-label">CIDADE</label>
+                        <input type="text" class="form-control" id="forn_cidade" name="forn_cidade"
+                               value="{{ fornecedor.forn_cidade if fornecedor else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label for="forn_uf" class="form-label">UF</label>
+                        <input type="text" class="form-control" id="forn_uf" name="forn_uf"
+                               value="{{ fornecedor.forn_uf if fornecedor else '' }}"
+                               maxlength="2"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contato principal -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="forn_telefone" class="form-label">TELEFONE</label>
+                        <input type="text" class="form-control" id="forn_telefone" name="forn_telefone"
+                               value="{{ fornecedor.forn_telefone if fornecedor else '' }}"
+                               placeholder="(11) 99999-9999">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="forn_email" class="form-label">E-MAIL</label>
+                        <input type="email" class="form-control" id="forn_email" name="forn_email"
+                               value="{{ fornecedor.forn_email if fornecedor else '' }}">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if fornecedor %}ATUALIZAR FORNECEDOR{% else %}CADASTRAR FORNECEDOR{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

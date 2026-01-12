@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}Receita - {{ os.os_numero }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-eye me-2"></i> Receita - OS {{ os.os_numero }}</h5>
+        <a href="{{ url_for('caixa.visualizar_os', os_numero=os.os_numero) }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="p-4">
+        <form method="POST">
+            <!-- Cabeçalho -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Cliente:</label>
+                    <input type="text" class="form-control" value="{{ receita.cliente }}" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Paciente:</label>
+                    <input type="text" class="form-control" value="{{ receita.paciente }}" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Médico:</label>
+                    <input type="text" class="form-control" value="{{ receita.medico }} - CRM {{ receita.crm }}" readonly>
+                </div>
+            </div>
+
+            <!-- Data de aviso -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Data de aviso:</label>
+                    <input type="text" class="form-control" value="{{ receita.data_aviso }}" readonly>
+                </div>
+            </div>
+
+            <!-- Lente Genérica -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Lente Genérica:</label>
+                    <input type="text" class="form-control" value="{{ receita.lente_generica }}" readonly>
+                </div>
+            </div>
+
+            <!-- Olho Direito -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <strong>Olho Direito (F5 copiar)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Lente:</label>
+                            <input type="text" class="form-control" value="{{ receita.lente_generica }}" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Descrição:</label>
+                            <input type="text" class="form-control" value="{{ receita.lente_generica }}" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Esf.:</label>
+                            <input type="text" class="form-control" name="esf_od" value="{{ receita.dioptria_od.esf }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Cil.:</label>
+                            <input type="text" class="form-control" name="cil_od" value="{{ receita.dioptria_od.cil }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Eixo:</label>
+                            <input type="text" class="form-control" name="eixo_od" value="{{ receita.dioptria_od.eixo }}">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Adição:</label>
+                            <input type="text" class="form-control" name="adicao_od" value="{{ receita.dioptria_od.adicao }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">CO.:</label>
+                            <input type="text" class="form-control" name="co_od" value="{{ receita.dioptria_od.co }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">DNB:</label>
+                            <input type="text" class="form-control" name="dnb_od" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Alt.:</label>
+                            <input type="text" class="form-control" name="alt_od" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">CRO.:</label>
+                            <input type="text" class="form-control" name="cro_od" value="29">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Esfera F.:</label>
+                            <input type="text" class="form-control" name="esf_f_od" value="+3,50">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Cil. F.:</label>
+                            <input type="text" class="form-control" name="cil_f_od" value="0,00">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Eixo F.:</label>
+                            <input type="text" class="form-control" name="eixo_f_od" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">DNP F.:</label>
+                            <input type="text" class="form-control" name="dnp_f_od" value="31,5">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">CO F.:</label>
+                            <input type="text" class="form-control" name="co_f_od" value="29">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Olho Esquerdo -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <strong>Olho Esquerdo (F6 copiar)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Lente:</label>
+                            <input type="text" class="form-control" value="{{ receita.lente_generica }}" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Descrição:</label>
+                            <input type="text" class="form-control" value="{{ receita.lente_generica }}" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Esf.:</label>
+                            <input type="text" class="form-control" name="esf_oe" value="{{ receita.dioptria_oe.esf }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Cil.:</label>
+                            <input type="text" class="form-control" name="cil_oe" value="{{ receita.dioptria_oe.cil }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Eixo:</label>
+                            <input type="text" class="form-control" name="eixo_oe" value="{{ receita.dioptria_oe.eixo }}">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Adição:</label>
+                            <input type="text" class="form-control" name="adicao_oe" value="{{ receita.dioptria_oe.adicao }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">CO.:</label>
+                            <input type="text" class="form-control" name="co_oe" value="{{ receita.dioptria_oe.co }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">DNB:</label>
+                            <input type="text" class="form-control" name="dnb_oe" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Alt.:</label>
+                            <input type="text" class="form-control" name="alt_oe" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">CRO.:</label>
+                            <input type="text" class="form-control" name="cro_oe" value="29">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Esfera F.:</label>
+                            <input type="text" class="form-control" name="esf_f_oe" value="+3,75">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Cil. F.:</label>
+                            <input type="text" class="form-control" name="cil_f_oe" value="0,00">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Eixo F.:</label>
+                            <input type="text" class="form-control" name="eixo_f_oe" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">DNP F.:</label>
+                            <input type="text" class="form-control" name="dnp_f_oe" value="31,5">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">CO F.:</label>
+                            <input type="text" class="form-control" name="co_f_oe" value="29">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lente Contato -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <strong>Lente Contato</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Curva B.:</label>
+                            <input type="text" class="form-control" name="curva_b" value="">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">R.C. H.:</label>
+                            <input type="text" class="form-control" name="rc_h" value="">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">R.C. Vert.:</label>
+                            <input type="text" class="form-control" name="rc_vert" value="">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Ø:</label>
+                            <input type="text" class="form-control" name="diametro" value="">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teste:</label>
+                        <textarea class="form-control" name="teste" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prismas -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <strong>Prismas</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Prisma H:</label>
+                            <input type="text" class="form-control" name="prisma_h" value="">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Base:</label>
+                            <select class="form-select" name="base_h">
+                                <option value="">(Selecione)</option>
+                                <option value="IN">IN</option>
+                                <option value="OUT">OUT</option>
+                                <option value="UP">UP</option>
+                                <option value="DOWN">DOWN</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Ø:</label>
+                            <input type="text" class="form-control" name="prisma_h_diametro" value="">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Prisma V:</label>
+                            <input type="text" class="form-control" name="prisma_v" value="">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Base:</label>
+                            <select class="form-select" name="base_v">
+                                <option value="">(Selecione)</option>
+                                <option value="IN">IN</option>
+                                <option value="OUT">OUT</option>
+                                <option value="UP">UP</option>
+                                <option value="DOWN">DOWN</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Ø:</label>
+                            <input type="text" class="form-control" name="prisma_v_diametro" value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DP e Longe -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <strong>DP perto e longe</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">DP Longe:</label>
+                            <input type="text" class="form-control" name="dp_longe" value="{{ receita.dp.longe }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">DP Perto:</label>
+                            <input type="text" class="form-control" name="dp_perto" value="{{ receita.dp.perto }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Olho dominante:</label>
+                            <select class="form-select" name="olho_dominante">
+                                <option value="Nenhum" {% if receita.dp.olho_dominante == 'Nenhum' %}selected{% endif %}>Nenhum</option>
+                                <option value="Direito">Direito</option>
+                                <option value="Esquerdo">Esquerdo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lente Digital -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <strong>Lente Digital</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Dist. Vértice:</label>
+                            <input type="text" class="form-control" name="dist_vertice" value="{{ receita.lente_digital.dist_vertice }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Dist. P.:</label>
+                            <input type="text" class="form-control" name="dist_p" value="{{ receita.lente_digital.dist_p }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Ø Pantoscópico:</label>
+                            <input type="text" class="form-control" name="pantoscopico" value="{{ receita.lente_digital.pantoscopico }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Ø Curv.:</label>
+                            <input type="text" class="form-control" name="curvatura" value="{{ receita.lente_digital.curvatura }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">HE:</label>
+                            <input type="text" class="form-control" name="he" value="{{ receita.lente_digital.he }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">ST:</label>
+                            <input type="text" class="form-control" name="st" value="{{ receita.lente_digital.st }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cliente | Paciente | Médico -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <strong>Cliente | Paciente | Médico</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Cliente:</label>
+                            <input type="text" class="form-control" value="{{ receita.cliente }}" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Paciente:</label>
+                            <input type="text" class="form-control" value="{{ receita.paciente }}" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Médico:</label>
+                            <input type="text" class="form-control" value="{{ receita.medico }}" readonly>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">CRM:</label>
+                            <input type="text" class="form-control" value="{{ receita.crm }}" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Data aviso:</label>
+                            <input type="text" class="form-control" value="{{ receita.data_aviso }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observações -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <strong>Observações</strong>
+                </div>
+                <div class="card-body">
+                    <textarea class="form-control" name="observacoes" rows="3">{{ receita.observacoes }}</textarea>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i> OK (F9)
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="cancelarReceita()">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar (F12)
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function cancelarReceita() {
+    if (confirm('Tem certeza que deseja cancelar a receita?')) {
+        window.location.href = "{{ url_for('caixa.visualizar_os', os_numero=os.os_numero) }}";
+    }
+}
+</script>
+{% endblock %}

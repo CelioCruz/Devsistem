@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Resumo do Caixa{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+    <!-- Barra superior -->
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-printer me-2"></i> Resumo do Caixa</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="row g-0">
+
+        <!-- Menu lateral -->
+        <div class="col-md-2 bg-white border-end">
+            <div class="nav flex-column mt-3">
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link active fw-bold text-success">
+                        <i class="bi bi-shop me-2"></i> Vendas
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link text-danger">
+                        <i class="bi bi-arrow-return-left me-2"></i> Devoluções
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-bell me-2"></i> Sinais
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-file-earmark-text me-2"></i> Pedidos e O.S’s
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.monitor_producao') }}" class="nav-link">
+                        <i class="bi bi-glasses me-2"></i> Ordens de serviço
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-plus-square me-2"></i> Mais operações
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área central -->
+        <div class="col-md-10 p-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h6><i class="bi bi-info-circle me-2"></i> Dados do Caixa</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Data:</strong> {{ caixa.cai_data.strftime('%d/%m/%Y') }}</p>
+                            <p><strong>Loja:</strong> {{ caixa.cai_loja }}</p>
+                            <p><strong>Usuário Abertura:</strong> {{ current_user.us_cad }}</p>
+                            <p><strong>Hora Abertura:</strong> {{ caixa.cai_hora_abertura.strftime('%H:%M:%S') }}</p>
+                            {% if caixa.cai_hora_fechamento %}
+                                <p><strong>Hora Fechamento:</strong> {{ caixa.cai_hora_fechamento.strftime('%H:%M:%S') }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status:</strong> 
+                                <span class="badge {% if caixa.cai_status == 'aberto' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ caixa.cai_status|upper }}
+                                </span>
+                            </p>
+                            <p><strong>Saldo Inicial:</strong> R$ {{ "%.2f"|format(caixa.cai_saldo_inicial)|replace('.', ',') }}</p>
+                            <p><strong>Saldo Final:</strong> R$ {{ "%.2f"|format(caixa.cai_saldo_final)|replace('.', ',') }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6>Formas de Pagamento</h6>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Forma</th>
+                                <th>Caixa</th>
+                                <th>Retirada</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dinheiro</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_dinheiro_caixa)|replace('.', ',') }}</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_dinheiro_retrada)|replace('.', ',') }}</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_dinheiro_caixa - caixa.cai_dinheiro_retrada)|replace('.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Cheque</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_cheque_caixa)|replace('.', ',') }}</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_cheque_retrada)|replace('.', ',') }}</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_cheque_caixa - caixa.cai_cheque_retrada)|replace('.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td>PIX</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_pix_caixa)|replace('.', ',') }}</td>
+                                <td>-</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_pix_caixa)|replace('.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Cartão</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_cartao_caixa)|replace('.', ',') }}</td>
+                                <td>-</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_cartao_caixa)|replace('.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Ticket</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_ticket_caixa)|replace('.', ',') }}</td>
+                                <td>-</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_ticket_caixa)|replace('.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Convênio</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_convenio_caixa)|replace('.', ',') }}</td>
+                                <td>-</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_convenio_caixa)|replace('.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Banco</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_banco_caixa)|replace('.', ',') }}</td>
+                                <td>-</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_banco_caixa)|replace('.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Carnê</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_carnet_caixa)|replace('.', ',') }}</td>
+                                <td>-</td>
+                                <td>R$ {{ "%.2f"|format(caixa.cai_carnet_caixa)|replace('.', ',') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Total da Conferência:</h6>
+                            <p class="fw-bold">R$ {{ "%.2f"|format(caixa.cai_total_conferencia)|replace('.', ',') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Total Registrado pelo Sistema:</h6>
+                            <p class="fw-bold">R$ {{ "%.2f"|format(caixa.cai_total_sistema)|replace('.', ',') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6>Falta:</h6>
+                            <p class="fw-bold {% if caixa.cai_falta < 0 %}text-danger{% else %}text-success{% endif %}">
+                                R$ {{ "%.2f"|format(caixa.cai_falta)|replace('.', ',') }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Malote (Dinheiro):</h6>
+                            <p class="fw-bold">R$ {{ "%.2f"|format(caixa.cai_malote)|replace('.', ',') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ url_for('caixa.imprimir_resumo') }}" class="btn btn-primary">
+                            <i class="bi bi-printer"></i> Imprimir Resumo
+                        </a>
+                        <a href="{{ url_for('caixa.index') }}" class="btn btn-secondary ms-2">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

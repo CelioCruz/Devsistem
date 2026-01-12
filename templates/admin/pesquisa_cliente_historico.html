@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico - Pesquisar Cliente{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-person me-2"></i> Pesquisar Cliente para Histórico</h3>
+    <button class="btn btn-outline-secondary btn-sm" onclick="window.location.href='{{ url_for('financeiro.index') }}'">
+        ← Voltar para Financeiro
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <!-- Reutiliza a barra de pesquisa com F2 do clientes.html, mas sem ações -->
+        <form method="GET" class="mb-3">
+            <input type="hidden" name="filtro" id="filtro-input" value="{{ request.args.get('filtro', 'nome') }}">
+            <div class="input-group">
+                <span class="input-group-text" id="filtro-label">
+                    {% set f = request.args.get('filtro', 'nome') %}
+                    {% if f == 'nome' %}Nome{% elif f == 'cpf' %}CPF/CNPJ{% else %}Código{% endif %}
+                </span>
+                <input type="text" class="form-control" name="q" id="search-input" 
+                       value="{{ request.args.get('q', '') }}" placeholder="Pesquisar cliente..." autofocus>
+                <button class="btn btn-outline-secondary" type="submit">🔍</button>
+            </div>
+            <small class="text-muted">Pressione <kbd>F2</kbd> para alternar entre Nome, CPF e Código.</small>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>CÓD.</th>
+                        <th>NOME</th>
+                        <th>CPF/CNPJ</th>
+                        <th>AÇÃO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cli in clientes %}
+                    <tr>
+                        <td>{{ cli.cli_reg }}</td>
+                        <td>{{ cli.cli_nome|upper }}</td>
+                        <td>{{ cli.cli_cpf_cnpj or '-' }}</td>
+                        <td>
+                            <!-- Seleciona o cliente para ver histórico -->
+                            <a href="{{ url_for('financeiro.historico_cliente_detalhes', cliente_id=cli.cli_reg) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                Ver Histórico
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">Nenhum cliente encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 113 || (e.key && e.key.toUpperCase() === 'F2')) {
+        e.preventDefault();
+        const input = document.getElementById('filtro-input');
+        const label = document.getElementById('filtro-label');
+        const search = document.getElementById('search-input');
+        let f = input.value;
+
+        if (f === 'nome') { input.value = 'cpf'; label.textContent = 'CPF/CNPJ'; search.placeholder = 'Pesquisar por CPF/CNPJ'; }
+        else if (f === 'cpf') { input.value = 'codigo'; label.textContent = 'Código'; search.placeholder = 'Pesquisar por Código'; }
+        else { input.value = 'nome'; label.textContent = 'Nome'; search.placeholder = 'Pesquisar por Nome'; }
+    }
+});
+</script>
+{% endblock %}

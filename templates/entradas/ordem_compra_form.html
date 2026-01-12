@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Ordem de Compra{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-file-invoice me-2"></i> Ordem de Compra</h3>
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+
+    <!-- Barra de botões -->
+    <div class="mb-3 d-flex gap-2">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('formOrdem').submit();">
+            <i class="fas fa-save me-1"></i> Gravar (F5)
+        </button>
+        {% if ordem and ordem.oc_status == 'rascunho' %}
+        <button type="button" class="btn btn-success" onclick="confirmarAprovacao({{ ordem.oc_reg }});">
+            <i class="fas fa-check me-1"></i> Aprovar (F6)
+        </button>
+        {% endif %}
+        <button type="button" class="btn btn-info" onclick="alert('Histórico ainda não implementado');">
+            <i class="fas fa-history me-1"></i> Histórico
+        </button>
+    </div>
+
+    <form id="formOrdem" method="POST">
+        <div class="card">
+            <div class="card-header bg-white">
+                <strong>Dados Principais</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Empresa *</label>
+                        <select name="oc_empresa_id" class="form-control" required>
+                            <option value="">Selecione</option>
+                            {% for empresa in empresas %}
+                            <option value="{{ empresa.emp_reg }}" {% if ordem and ordem.oc_empresa_id == empresa.emp_reg %}selected{% endif %}>
+                                {{ empresa.emp_nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Data de Emissão *</label>
+                        <input type="date" name="oc_data_emissao" class="form-control" 
+                               value="{{ ordem.oc_data_emissao.strftime('%Y-%m-%d') if ordem else '' }}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Data de Previsão</label>
+                        <input type="date" name="oc_data_previsao" class="form-control"
+                               value="{{ ordem.oc_data_previsao.strftime('%Y-%m-%d') if ordem else '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fornecedor *</label>
+                        <select name="oc_fornecedor_id" class="form-control" required>
+                            <option value="">SELECIONE</option>
+                            {% for fornecedor in fornecedores %}
+                            <option value="{{ fornecedor.forn_cnpj }}" {% if ordem and ordem.oc_fornecedor_id == fornecedor.forn_cnpj %}selected{% endif %}>
+                                {{ fornecedor.forn_razao }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Condição de Pagamento</label>
+                        <select name="oc_condicao_pagamento" class="form-control">
+                            <option value="">(Nenhuma)</option>
+                            <!-- Preencher com condições cadastradas -->
+                            <option value="À vista">À vista</option>
+                            <option value="30 dias">30 dias</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Valor de Frete</label>
+                        <input type="text" name="oc_valor_frete" class="form-control" 
+                               value="{{ ordem.oc_valor_frete if ordem else '0,00' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Empresa Responsável *</label>
+                        <select name="oc_empresa_responsavel_id" class="form-control" required>
+                            <option value="">Selecione</option>
+                            {% for empresa in empresas %}
+                            <option value="{{ empresa.emp_reg }}" {% if ordem and ordem.oc_empresa_responsavel_id == empresa.emp_reg %}selected{% endif %}>
+                                {{ empresa.emp_nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Transportadora</label>
+                        <input type="text" name="oc_transportadora" class="form-control"
+                               value="{{ ordem.oc_transportadora if ordem else '(NENHUMA)' }}">
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Entrega</label>
+                        <input type="text" name="oc_entrega" class="form-control"
+                               value="{{ ordem.oc_entrega if ordem else '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Transporte</label>
+                        <select name="oc_transporte" class="form-control">
+                            <option value="">Selecione</option>
+                            <option value="Rodoviário">Rodoviário</option>
+                            <option value="Aéreo">Aéreo</option>
+                            <option value="Marítimo">Marítimo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Etiquetagem</label>
+                        <select name="oc_etiquetagem" class="form-control">
+                            <option value="">Selecione</option>
+                            <option value="Padrão">Padrão</option>
+                            <option value="Personalizada">Personalizada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label">Observações</label>
+                    <textarea name="oc_observacoes" class="form-control" rows="3">{{ ordem.oc_observacoes if ordem else '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de Itens -->
+        <div class="card mt-4">
+            <div class="card-header bg-white">
+                <strong>Itens da Ordem de Compra</strong>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código de Barras</th>
+                                <th>ID</th>
+                                <th>Descrição</th>
+                                <th>Qtd</th>
+                                <th>Und.</th>
+                                <th>Valor Unitário</th>
+                                <th>Peso</th>
+                                <th>Total</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itensTable">
+                            {% if ordem %}
+                                {% for item in ordem.itens %}
+                                <tr>
+                                    <td>{{ item.ioc_codigo_barras }}</td>
+                                    <td>{{ item.ioc_produto_id }}</td>
+                                    <td>{{ item.ioc_descricao }}</td>
+                                    <td>{{ item.ioc_quantidade }}</td>
+                                    <td>{{ item.ioc_unidade }}</td>
+                                    <td>{{ item.ioc_valor_unitario|float|format_currency }}</td>
+                                    <td>{{ item.ioc_peso }}</td>
+                                    <td>{{ item.ioc_total|float|format_currency }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary">Editar</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger">Excluir</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center">Nenhum item adicionado.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra inferior de ações dos itens -->
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-success" onclick="adicionarItem()">
+                <i class="fas fa-plus me-1"></i> Adicionar (F8)
+            </button>
+            <button type="button" class="btn btn-warning" onclick="editarItem()">
+                <i class="fas fa-edit me-1"></i> Editar
+            </button>
+            <button type="button" class="btn btn-danger" onclick="excluirItem()">
+                <i class="fas fa-trash me-1"></i> Excluir
+            </button>
+            <button type="button" class="btn btn-info" onclick="addItemGenerico()">
+                <i class="fas fa-tag me-1"></i> Item Genérico
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="addMultiplos()">
+                <i class="fas fa-copy me-1"></i> Adicionar Múltiplos
+            </button>
+            <!-- Botões de navegação (opcional) -->
+            <button type="button" class="btn btn-outline-dark" onclick="navigateFirst()">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button type="button" class="btn btn-outline-dark" onclick="navigatePrev()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button type="button" class="btn btn-outline-dark" onclick="navigateNext()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <button type="button" class="btn btn-outline-dark" onclick="navigateLast()">
+                <i class="fas fa-step-forward"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function confirmarAprovacao(ordemId) {
+    if (confirm('Tem certeza que deseja aprovar esta Ordem de Compra? Isso gerará um Pedido de Entrada.')) {
+        window.location.href = "{{ url_for('entradas.aprovar_ordem_compra', ordem_id=0) }}".replace('0', ordemId);
+    }
+}
+
+// Funções para manipulação de itens (a serem implementadas com AJAX ou modal)
+function adicionarItem() {
+    alert('Função "Adicionar Item" ainda não implementada.');
+}
+
+function editarItem() {
+    alert('Função "Editar Item" ainda não implementada.');
+}
+
+function excluirItem() {
+    alert('Função "Excluir Item" ainda não implementada.');
+}
+
+function addItemGenerico() {
+    alert('Função "Item Genérico" ainda não implementada.');
+}
+
+function addMultiplos() {
+    alert('Função "Adicionar Múltiplos" ainda não implementada.');
+}
+
+function navigateFirst() { /* Implementar */ }
+function navigatePrev() { /* Implementar */ }
+function navigateNext() { /* Implementar */ }
+function navigateLast() { /* Implementar */ }
+</script>
+{% endblock %}

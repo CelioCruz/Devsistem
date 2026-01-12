@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Abrir Caixa{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+    <!-- Barra superior -->
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-unlock me-2"></i> Abrir Caixa</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="row g-0">
+
+        <!-- Menu lateral -->
+        <div class="col-md-2 bg-white border-end">
+            <div class="nav flex-column mt-3">
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link active fw-bold text-success">
+                        <i class="bi bi-shop me-2"></i> Vendas
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link text-danger">
+                        <i class="bi bi-arrow-return-left me-2"></i> Devoluções
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-bell me-2"></i> Sinais
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-file-earmark-text me-2"></i> Pedidos e O.S’s
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.monitor_producao') }}" class="nav-link">
+                        <i class="bi bi-glasses me-2"></i> Ordens de serviço
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-plus-square me-2"></i> Mais operações
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <label for="observacao" class="form-label">Observações (opcional)</label>
+                    <textarea class="form-control" id="observacao" name="observacao" rows="3"
+                            placeholder="Ex: Troco inicial, observações do dia, etc."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área central -->
+        <div class="col-md-10 p-4">
+            <form method="POST">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h6><i class="bi bi-cash me-2"></i> Valor Inicial do Caixa</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="saldo_inicial" class="form-label">Fundo de Caixa (R$)</label>
+                            <input type="number" step="0.01" class="form-control" id="saldo_inicial" name="saldo_inicial" value="0.00" required>
+                            <small class="text-muted">Valor em dinheiro que ficará no caixa para troco.</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Banco do Usuário (R$)</label>
+                            <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                            <small class="text-muted">Este campo é apenas informativo. Não pode ser alterado.</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Abrir Caixa</button>
+                        <a href="{{ url_for('caixa.index') }}" class="btn btn-secondary ms-2">Cancelar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

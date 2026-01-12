@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - {% if cliente %}Editar Cliente{% else %}Novo Cliente{% endif %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>👥 {% if cliente %}Editar Cliente{% else %}Novo Cliente{% endif %}</h3>
+    <a href="{{ url_for('admin.cadastro', amb_id=1) }}" class="btn btn-outline-secondary btn-sm">← Voltar ao Cadastro</a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <strong>{% if cliente %}✏️ Editar Cliente{% else %}➕ Novo Cliente{% endif %}</strong>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+
+            <!-- CPF -->
+            <div class="mb-3">
+                <label for="cli_cpf_cnpj" class="form-label">CPF (somente números)</label>
+                <input type="text" class="form-control" id="cli_cpf_cnpj" name="cli_cpf_cnpj"
+                       value="{{ cliente.cli_cpf_cnpj if cliente else '' }}"
+                       placeholder="12345678909" maxlength="11">
+                <small class="text-muted">Digite o CPF para verificar se já está cadastrado.</small>
+            </div>
+
+            <!-- Nome -->
+            <div class="mb-3">
+                <label for="cli_nome" class="form-label">NOME COMPLETO *</label>
+                <input type="text" class="form-control" id="cli_nome" name="cli_nome"
+                       value="{{ cliente.cli_nome if cliente else '' }}"
+                       oninput="this.value = this.value.toUpperCase()"
+                       required>
+            </div>
+
+            <!-- Data de Nascimento -->
+            <div class="mb-3">
+                <label for="cli_nasc" class="form-label">DATA DE NASCIMENTO</label>
+                <input type="date" class="form-control" id="cli_nasc" name="cli_nasc"
+                       value="{{ cliente.cli_nasc.strftime('%Y-%m-%d') if cliente and cliente.cli_nasc else '' }}">
+            </div>
+
+            <!-- CEP -->
+            <div class="mb-3">
+                <label for="cli_cep" class="form-label">CEP</label>
+                <input type="text" class="form-control" id="cli_cep" name="cli_cep"
+                       value="{{ cliente.cli_cep if cliente and cliente.cli_cep else '' }}"
+                       placeholder="00000-000">
+            </div>
+
+            <!-- Endereço -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label for="cli_endereco" class="form-label">ENDEREÇO</label>
+                        <input type="text" class="form-control" id="cli_endereco" name="cli_endereco"
+                               value="{{ cliente.cli_endereco if cliente else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="cli_bairro" class="form-label">BAIRRO</label>
+                        <input type="text" class="form-control" id="cli_bairro" name="cli_bairro"
+                               value="{{ cliente.cli_bairro if cliente else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="cli_cidade" class="form-label">CIDADE</label>
+                        <input type="text" class="form-control" id="cli_cidade" name="cli_cidade"
+                               value="{{ cliente.cli_cidade if cliente else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label for="cli_uf" class="form-label">UF</label>
+                        <input type="text" class="form-control" id="cli_uf" name="cli_uf"
+                               value="{{ cliente.cli_uf if cliente else '' }}"
+                               maxlength="2"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filiação -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="cli_pai" class="form-label">NOME DO PAI</label>
+                        <input type="text" class="form-control" id="cli_pai" name="cli_pai"
+                               value="{{ cliente.cli_pai if cliente else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="cli_mae" class="form-label">NOME DA MÃE</label>
+                        <input type="text" class="form-control" id="cli_mae" name="cli_mae"
+                               value="{{ cliente.cli_mae if cliente else '' }}"
+                               oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telefone -->
+            <div class="mb-3">
+                <label for="cli_telefone" class="form-label">TELEFONE (COM DDD)</label>
+                <input type="text" class="form-control" id="cli_telefone" name="cli_telefone"
+                       value="{{ cliente.cli_telefone if cliente else '' }}"
+                       placeholder="(11) 99999-9999">
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if cliente %}ATUALIZAR CLIENTE{% else %}CADASTRAR CLIENTE{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

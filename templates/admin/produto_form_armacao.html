@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Nova Armação{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>👓 Nova Armação</h3>
+    <a href="{{ url_for('admin.listar_produtos', aba='armacao') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+</div>
+
+<form method="POST">
+    <div class="card">
+        <div class="card-body">
+                     
+            <!-- Fabricante -->
+            <div class="mb-3">
+                <label class="form-label">Fabricante</label>
+                <select name="fabricante_id" class="form-select">
+                <option value="">Selecione o fornecedor</option>
+                {% for f in fornecedores %}
+                <option value="{{ f.forn_cnpj }}" 
+                        {% if f.forn_cnpj == fornecedor_cnpj %}selected{% endif %}>
+                    {{ f.forn_fantasia }}
+                </option>
+                {% endfor %}
+            </select>
+            </div>
+
+            <!-- Item ID (oculto para edição) -->
+             
+            {% if item_id %}
+            <input type="hidden" name="item_id" value="{{ item_id }}">
+            {% endif %}
+ 
+            <!-- Tipo -->
+            <div class="mb-3">
+                <label class="form-label">Tipo *</label>
+                <select class="form-control" name="tipo_aramacao" required>
+                    <option value="">Selecione</option>
+                    <option value="AR">AR - Armação</option>
+                    <option value="OC">OC - Óculos Completo</option>
+                </select>
+            </div>
+
+            <!-- Descrição (iniciais) -->
+            <div class="mb-3">
+                <label class="form-label">Iniciais da Marca *</label>
+                <input type="text" class="form-control" name="descricao_iniciais"
+                       placeholder="Ex: PCAR, RAYB"
+                       maxlength="10"
+                       required>
+                <small class="text-muted">Ex: Pierre Cardin = PCAR</small>
+            </div>
+
+            <!-- Peça (modelo) -->
+            <div class="mb-3">
+                <label class="form-label">Modelo da Peça *</label>
+                <input type="text" class="form-control" name="peca"
+                       placeholder="Ex: PC6225, RB2180"
+                       maxlength="20"
+                       required>
+            </div>
+
+            <!-- Cor -->
+            <div class="mb-3">
+                <label class="form-label">Código da Cor *</label>
+                <input type="text" class="form-control" name="cor"
+                       placeholder="Ex: 003, 580"
+                       maxlength="10"
+                       required>
+            </div>
+
+            <!-- Tamanho -->
+            <div class="mb-3">
+                <label class="form-label">Tamanho (Lente) *</label>
+                <input type="text" class="form-control" name="tamanho"
+                       placeholder="Ex: 52"
+                       maxlength="5"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                       required>
+            </div>
+
+            <!-- Ponte -->
+            <div class="mb-3">
+                <label class="form-label">Ponte *</label>
+                <input type="text" class="form-control" name="ponte"
+                       placeholder="Ex: 19"
+                       maxlength="5"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                       required>
+            </div>
+
+            <!-- Preço de Custo -->
+            <div class="mb-3">
+                <label class="form-label">Preço de Custo *</label>
+                <input type="text" name="preco_custo" class="form-control"
+                        value="{{ '%.2f'|format(preco_sugerido)|replace('.', ',') if preco_sugerido else '' }}"
+                        placeholder="0,00">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Foto da Armação (opcional)</label>
+                <input type="file" name="imagem" accept="image/*" class="form-control">
+                <div class="form-text">Formatos aceitos: JPG, PNG</div>
+            </div>
+            <button type="submit" class="btn btn-success">Salvar Armação</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Associar Produto{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Associar Produto</h2>
+    <p><strong>Item da NF-e:</strong> {{ item.quantidade }} x R$ {{ '%.2f'|format(item.preco_unitario) }}</p>
+
+    <!-- Formulário de busca -->
+    <form method="GET" class="mb-3">
+        <div class="row g-2">
+            <div class="col-md-6">
+                <input type="text" name="q" class="form-control" placeholder="Pesquisar por código ou descrição (pressione F2)"
+                       value="{{ termo }}" id="search-input">
+            </div>
+            <div class="col-md-3">
+                <select name="categoria" class="form-select">
+                    <option value="">Todas as categorias</option>
+                    <option value="armacao" {% if categoria == 'armacao' %}selected{% endif %}>Armações</option>
+                    <option value="lente" {% if categoria == 'lente' %}selected{% endif %}>Lentes</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Pesquisar</button>
+            </div>
+        </div>
+    </form>
+
+    {% if produtos %}
+    <!-- Formulário de associação + número do pedido -->
+    <form method="POST">
+        <input type="hidden" name="produto_id" id="selected-produto-id">
+        
+        <!-- NOVO: Campo para número do pedido no fornecedor -->
+        <div class="mb-3">
+            <label for="numero_pedido_fornecedor" class="form-label">
+                Número do Pedido no Fornecedor (opcional)
+                <i class="bi bi-info-circle text-muted" data-bs-toggle="tooltip" 
+                   title="Informe o número do pedido usado pelo fornecedor (ex: PED-7890). Se preenchido, o sistema atualizará automaticamente o status da OS."></i>
+            </label>
+            <input type="text" 
+                   class="form-control" 
+                   id="numero_pedido_fornecedor" 
+                   name="numero_pedido_fornecedor"
+                   placeholder="Ex: PED-7890, OC2025-123"
+                   value="{{ request.form.numero_pedido_fornecedor or '' }}">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>COD</th>
+                        <th>DESCRIÇÃO</th>
+                        <th>COMPRA</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produtos %}
+                    <tr onclick="selectProduto('{{ p.prod_reg }}')" style="cursor: pointer;">
+                        <td>{{ p.prod_codigo_barras }}</td>
+                        <td>{{ p.prod_nome }}</td>
+                        <td>R$ {{ '%.2f'|format(p.prod_preco_custo) }}</td>
+                        <td><button type="button" class="btn btn-sm btn-outline-secondary">Selecionar</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-success">Confirmar Associação</button>
+    </form>
+    {% else %}
+        <div class="alert alert-info">Nenhum produto encontrado.</div>
+    {% endif %}
+
+    <a href="{{ url_for('entradas.editar_entrada', entrada_id=item.entrada_id) }}" class="btn btn-secondary mt-3">Cancelar</a>
+</div>
+
+<script>
+    // Ativar busca com F2
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F2') {
+            e.preventDefault();
+            document.getElementById('search-input').focus();
+        }
+    });
+
+    // Selecionar produto
+    function selectProduto(produtoId) {
+        document.getElementById('selected-produto-id').value = produtoId;
+    }
+    
+    // Tooltip
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

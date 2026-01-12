@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - {% if tipo %}Editar Tipo de Cartão{% else %}Novo Tipo de Cartão{% endif %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>
+        <i class="fas fa-credit-card me-2"></i>
+        {% if tipo %}Editar Tipo de Cartão{% else %}Novo Tipo de Cartão{% endif %}
+    </h3>
+    <button class="btn btn-outline-secondary btn-sm"
+        onclick="window.location.href='{{ url_for('admin.listar_tipos_cartao') }}'">
+        ← Voltar aos Tipos de Cartão
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <i class="fas fa-edit me-2"></i>
+        <strong>📝 {% if tipo %}Editar{% else %}Cadastrar{% endif %} Tipo de Cartão</strong>
+    </div>
+    <div class="card-body">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="formCartao">
+            <div class="mb-3">
+                <label for="tca_descricao" class="form-label">Descrição *</label>
+                <input type="text" class="form-control" id="tca_descricao" name="tca_descricao"
+                    value="{{ request.form.tca_descricao or (tipo.tca_descricao if tipo else '') }}" required>
+            </div>
+
+            <!-- Tipo: Crédito ou Débito -->
+            <div class="mb-3">
+                <label class="form-label">Tipo *</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tca_tipo" id="tipoCredito" value="credito" required
+                        {% if (request.form.tca_tipo or (tipo.tca_tipo if tipo else '')) == 'credito' %}checked{% endif %}>
+                    <label class="form-check-label" for="tipoCredito">Crédito</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tca_tipo" id="tipoDebito" value="debito" required
+                        {% if (request.form.tca_tipo or (tipo.tca_tipo if tipo else '')) == 'debito' %}checked{% endif %}>
+                    <label class="form-check-label" for="tipoDebito">Débito</label>
+                </div>
+            </div>
+
+            <!-- Parcelas (só para crédito) -->
+            <div class="mb-3" id="divParcelas">
+                <label for="tca_parcelas" class="form-label">Parcelas *</label>
+                <select class="form-control" id="tca_parcelas" name="tca_parcelas" required>
+                    {% for i in range(1, 13) %}
+                        <option value="{{ i }}"
+                            {% if (request.form.tca_parcelas|default(tipo.tca_parcelas if tipo else 1)|int) == i %}selected{% endif %}>
+                            {{ i }}x
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Débito (fixo 1x) -->
+            <div class="mb-3 d-none" id="divDebito">
+                <label class="form-label">Parcelas</label>
+                <input type="text" class="form-control" value="1x" disabled>
+                <input type="hidden" name="tca_parcelas" value="1">
+            </div>
+
+            <!-- Taxa Crédito -->
+            <div class="mb-3" id="divTaxaCredito">
+                <label for="tca_taxa_credito" class="form-label">Taxa Crédito (%) *</label>
+                <input type="text" class="form-control" id="tca_taxa_credito" name="tca_taxa_credito"
+                    placeholder="Ex: 3.50"
+                    value="{{ request.form.tca_taxa_credito or (tipo.tca_taxa_credito|float if tipo else '0.00') }}">
+                <small class="text-muted">Valor percentual cobrado pela operadora (ex: 3,50)</small>
+            </div>
+
+            <!-- Taxa Débito -->
+            <div class="mb-3 d-none" id="divTaxaDebito">
+                <label for="tca_taxa_debito" class="form-label">Taxa Débito (%) *</label>
+                <input type="text" class="form-control" id="tca_taxa_debito" name="tca_taxa_debito"
+                    placeholder="Ex: 2.00"
+                    value="{{ request.form.tca_taxa_debito or (tipo.tca_taxa_debito|float if tipo else '0.00') }}">
+                <small class="text-muted">Valor percentual cobrado pela operadora (ex: 2,00)</small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Salvar Tipo de Cartão
+                </button>
+                <a href="{{ url_for('admin.listar_tipos_cartao') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoCredito = document.getElementById('tipoCredito');
+    const tipoDebito = document.getElementById('tipoDebito');
+    const divParcelas = document.getElementById('divParcelas');
+    const divAliquotaCredito = document.getElementById('divAliquotaCredito');
+    const divAliquotaDebito = document.getElementById('divAliquotaDebito');
+
+    function toggleInputs() {
+        if (tipoCredito.checked) {
+            divParcelas.classList.remove('d-none');
+            divAliquotaCredito.classList.remove('d-none');
+            divAliquotaDebito.classList.add('d-none');
+            document.getElementById('tca_taxa_debito').value = '0.00';
+        } else if (tipoDebito.checked) {
+            divParcelas.classList.add('d-none');
+            divAliquotaCredito.classList.add('d-none');
+            divAliquotaDebito.classList.remove('d-none');
+            document.getElementById('tca_taxa_credito').value = '0.00';
+            document.getElementById('tca_parcelas').value = '1';
+            // Campo oculto para garantir 1x no backend
+            let hiddenParcela = document.querySelector('input[name="tca_parcelas_hidden"]');
+            if (!hiddenParcela) {
+                hiddenParcela = document.createElement('input');
+                hiddenParcela.type = 'hidden';
+                hiddenParcela.name = 'tca_parcelas';
+                hiddenParcela.value = '1';
+                document.getElementById('formCartao').appendChild(hiddenParcela);
+            }
+        }
+    }
+
+    toggleInputs();
+    tipoCredito.addEventListener('change', toggleInputs);
+    tipoDebito.addEventListener('change', toggleInputs);
+});
+</script>
+{% endblock %}

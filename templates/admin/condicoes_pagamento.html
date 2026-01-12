@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - Condições de Pagamento{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="fas fa-file-contract me-2"></i> Condições de Pagamento</h3>
+    <button class="btn btn-outline-secondary btn-sm" 
+        onclick="window.location.href='{{ url_for('admin.cadastro') }}'">
+        ← Voltar ao Cadastro
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white d-flex align-items-center">
+        <i class="fas fa-clipboard-list me-2"></i>
+        <strong>📋 Condições Cadastradas</strong>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('admin.nova_condicao_pagamento') }}" class="btn btn-success mb-3">+ Nova Condição</a>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>CÓD.</th>
+                        <th>DESCRIÇÃO</th>
+                        <th>DIAS</th>
+                        <th>PARCELAS</th>
+                        <th>AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if condicoes %}
+                        {% for c in condicoes %}
+                        <tr>
+                            <td>{{ c.cpg_reg }}</td>
+                            <td>{{ c.cpg_descricao|upper }}</td>
+                            <td>{{ c.cpg_dias or '-' }}</td>
+                            <td>{{ c.cpg_parcelas }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_condicao_pagamento', id=c.cpg_reg) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form method="POST" action="{{ url_for('admin.toggle_condicao_pagamento_ativo') }}" style="display:inline;">
+                                    <input type="hidden" name="cpg_reg" value="{{ c.cpg_reg }}">
+                                    <input type="hidden" name="ativo" value="{% if c.cpg_ativo %}false{% else %}true{% endif %}">
+                                    <button type="submit" class="btn btn-sm btn-outline-{% if c.cpg_ativo %}danger{% else %}success{% endif %}" 
+                                        onclick="return confirm('{% if c.cpg_ativo %}Desativar{% else %}Ativar{% endif %} condição?')">
+                                        {% if c.cpg_ativo %}Desativar{% else %}Ativar{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">NENHUMA CONDIÇÃO DE PAGAMENTO CADASTRADA.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

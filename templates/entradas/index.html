@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Entradas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Entradas</h2>
+    <p>Selecione uma opção abaixo para gerenciar entradas ou realizar pesquisas rápidas.</p>
+
+    {% set menu_itens = [
+        {'label': 'Entrada por NF-e', 'url': url_for('entradas.entrada_nf'), 'icon': 'bi bi-file-earmark-text'},
+        {'label': 'Entrada Manual', 'url': url_for('entradas.entrada_manual'), 'icon': 'bi bi-pencil'},
+        {'label': 'Ordem de Compra', 'url': url_for('entradas.nova_ordem_compra'), 'icon': 'bi bi-file-earmark-check'},
+        {'label': 'Inventário', 'url': url_for('entradas.inventario'), 'icon': 'bi bi-clipboard-data'},
+        {'label': 'Pesquisa Cliente', 'url': url_for('entradas.pesquisa', tipo='cliente'), 'icon': 'bi bi-person'},
+        {'label': 'Pesquisa Fornecedor', 'url': url_for('entradas.pesquisa', tipo='fornecedor'), 'icon': 'bi bi-building'},        
+        {'label': 'Pesquisa Produto', 'url': url_for('entradas.pesquisa', tipo='produto'), 'icon': 'bi bi-box'}                
+    ] %}
+
+    {% include 'partials/menu_secundario.html' %}
+</div>
+{% endblock %}

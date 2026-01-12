@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Baixar Carnê{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-check me-2"></i> Baixar Carnê</h5>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="p-4">
+        <div class="alert alert-info">
+            Digite o número do carnê ou do cliente para localizar.
+        </div>
+
+        <form method="GET">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="numero_carne" placeholder="Número do carnê ou cliente">
+                <button class="btn btn-primary" type="submit">Buscar</button>
+            </div>
+        </form>
+
+        <div class="mt-4">
+            <h6>Carnês encontrados:</h6>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nº Carnê</th>
+                        <th>Cliente</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>12345</td>
+                        <td>João Silva</td>
+                        <td>R$ 150,00</td>
+                        <td><span class="badge bg-warning">Em aberto</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-success">Baixar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

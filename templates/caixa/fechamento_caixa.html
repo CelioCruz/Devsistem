@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Fechar Caixa{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+    <!-- Barra superior -->
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-lock me-2"></i> Fechar Caixa</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+    </div>
+
+    <div class="row g-0">
+
+        <!-- Menu lateral -->
+        <div class="col-md-2 bg-white border-end">
+            <div class="nav flex-column mt-3">
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link active fw-bold text-success">
+                        <i class="bi bi-shop me-2"></i> Vendas
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link text-danger">
+                        <i class="bi bi-arrow-return-left me-2"></i> Devoluções
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-bell me-2"></i> Sinais
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-file-earmark-text me-2"></i> Pedidos e O.S’s
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="{{ url_for('caixa.monitor_producao') }}" class="nav-link">
+                        <i class="bi bi-glasses me-2"></i> Ordens de serviço
+                    </a>
+                </div>
+                <div class="nav-item mb-1">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-plus-square me-2"></i> Mais operações
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <label for="observacao" class="form-label">Observações do Fechamento</label>
+                    <textarea class="form-control" id="observacao" name="observacao" rows="2">{{ caixa.cai_observacao or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área central -->
+        <div class="col-md-10 p-4">
+            <form method="POST">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h6><i class="bi bi-cash me-2"></i> Conferência do Caixa</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="alert alert-info">
+                            Informe cada um dos valores totais abaixo para realização da conferência.
+                        </p>
+
+                        <!-- Dinheiro -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Dinheiro:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="dinheiro_caixa" value="0.00" required>
+                                    <span class="input-group-text">+</span>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">Retirada:</span>
+                                    <input type="number" step="0.01" class="form-control" name="dinheiro_retrada" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cheque -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Cheque:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="cheque_caixa" value="0.00" required>
+                                    <span class="input-group-text">+</span>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">Retirada:</span>
+                                    <input type="number" step="0.01" class="form-control" name="cheque_retrada" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PIX -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>PIX:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="pix_caixa" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cartão -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Cartão:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="cartao_caixa" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ticket -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Ticket:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="ticket_caixa" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Convênio -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Convênio:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="convenio_caixa" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Banco -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Banco:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="banco_caixa" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carnê emitido -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Carnê emitido:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <span class="input-group-text">Caixa:</span>
+                                    <input type="number" step="0.01" class="form-control" name="carnet_caixa" value="0.00" required>
+                                    <span class="input-group-text">=</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Valor abertura próxima caixa -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Valor abertura próx. caixa:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                    <span class="input-group-text">-</span>
+                                    <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Totais -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Total da conferência:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Total registrado pelo sistema:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="number" step="0.01" class="form-control" value="813.00" disabled>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Valor abertura próx. caixa:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Falta:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="number" step="0.01" class="form-control" value="-813.00" disabled>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Malote(dinheiro):</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="number" step="0.01" class="form-control" value="0.00" disabled>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-danger">Fechar Caixa</button>
+                            <a href="{{ url_for('caixa.index') }}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

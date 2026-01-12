@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{% if condicao %}Editar Condição{% else %}Nova Condição{% endif %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{% if condicao %}Editar Condição de Pagamento{% else %}Nova Condição de Pagamento{% endif %}</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+          {{ message|safe }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    <div class="mb-3">
+      <label for="cpg_descricao" class="form-label">Descrição</label>
+      <input type="text" class="form-control" id="cpg_descricao" name="cpg_descricao"
+        value="{{ request.form.cpg_descricao or (condicao.cpg_descricao if condicao else '') }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="cpg_dias" class="form-label">Dias para vencimento (opcional)</label>
+      <input type="number" class="form-control" id="cpg_dias" name="cpg_dias"
+        value="{{ request.form.cpg_dias or (condicao.cpg_dias if condicao else '') }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="cpg_parcelas" class="form-label">Número de parcelas</label>
+      <input type="number" class="form-control" id="cpg_parcelas" name="cpg_parcelas"
+        value="{{ request.form.cpg_parcelas or (condicao.cpg_parcelas if condicao else 1) }}" min="1" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ url_for('admin.listar_condicoes_pagamento') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

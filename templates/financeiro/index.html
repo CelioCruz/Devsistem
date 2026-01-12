@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block title %}Financeiro{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-coin me-2"></i> Financeiro</h2>
+        <a href="{{ url_for('admin.home') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar para o Menu
+        </a>
+    </div>
+
+    <!-- Barra de Botões Superiores (Toolbar) -->
+    <div class="mb-3 d-flex gap-2 flex-wrap">
+        <!-- Plano -->
+        <a href="{{ url_for('financeiro.plano_contas') }}" class="btn btn-outline-primary">
+            <i class="bi bi-list-check me-1"></i> Plano
+        </a>
+        
+        <!-- Emissão NF -->
+        <div class="dropdown">
+            <button class="btn btn-outline-success dropdown-toggle" type="button" id="nfDropdown" data-bs-toggle="dropdown">
+                <i class="bi bi-receipt me-1"></i> Emissão NF
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="nfDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('saidas.listar_nf_saida') }}">Histórico de Saídas</a></li>
+            </ul>
+        </div>
+
+        <!-- Conciliação -->
+        <div class="dropdown">
+            <button class="btn btn-outline-info dropdown-toggle" type="button" id="conciliacaoDropdown" data-bs-toggle="dropdown">
+                <i class="bi bi-bank2 me-1"></i> Conciliação
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="conciliacaoDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('financeiro.conciliacao') }}">Bater Extrato Bancário</a></li>
+            </ul>
+        </div>
+
+        <!-- DRE -->
+        <button type="button" class="btn btn-outline-warning">
+            <i class="bi bi-graph-up-arrow me-1"></i> DRE
+        </button>
+
+        <!-- Bonificação -->
+        <button type="button" class="btn btn-outline-danger">
+            <i class="bi bi-gift me-1"></i> Bonificação
+        </button>
+
+        <!-- Ferramentas -->
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="ferramentasDropdown" data-bs-toggle="dropdown">
+                <i class="bi bi-tools me-1"></i> Ferramentas
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="ferramentasDropdown">
+                <li><a class="dropdown-item" href="#">Gerenciamento de Crédito</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Nova Ferramenta 1</a></li>
+                <li><a class="dropdown-item" href="#">Nova Ferramenta 2</a></li>
+            </ul>
+        </div>
+
+        <!-- Histórico -->
+        <div class="dropdown">
+            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="historicoDropdown" data-bs-toggle="dropdown">
+                <i class="bi bi-clock-history me-1"></i> Histórico
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="historicoDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('financeiro.historico_cliente') }}">
+                    <i class="bi bi-person me-1"></i> Histórico de Cliente
+                </a></li>
+                <li><a class="dropdown-item" href="{{ url_for('financeiro.historico_fornecedor') }}">
+                    <i class="bi bi-building me-1"></i> Histórico de Fornecedor
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Financeiro por Data</a></li>
+                <li><a class="dropdown-item" href="#">Vendas</a></li>
+            </ul>
+        </div>
+
+    <!-- ✅ TABS: Hoje / Cobrança / Caixas -->
+    <ul class="nav nav-tabs mb-3" id="financeiroTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="hoje-tab" data-bs-toggle="tab" data-bs-target="#hoje" type="button" role="tab">Hoje</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cobranca-tab" data-bs-toggle="tab" data-bs-target="#cobranca" type="button" role="tab">Cobrança</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="caixas-tab" data-bs-toggle="tab" data-bs-target="#caixas" type="button" role="tab">Caixas</button>
+        </li>
+    </ul>
+
+    <!-- ✅ CONTEÚDO DAS ABAS -->
+    <div class="tab-content" id="financeiroTabsContent">
+        <!-- ABA HOJE -->
+        <div class="tab-pane fade show active" id="hoje" role="tabpanel">
+            <!-- ✅ CONTAS A PAGAR E RECEBER (ABERTO NO TOPO DA ABA) -->
+            <div class="card mb-4">
+                <div class="card-header bg-totem-cinza d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-clipboard2-check me-2"></i> Contas a pagar e receber</span>
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#contas" aria-expanded="true" aria-controls="contas">
+                        <i class="bi bi-chevron-up"></i>
+                    </button>
+                </div>
+                <div class="collapse show" id="contas">
+                    <div class="card-body">
+                        <form method="GET" class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Empresa</label>
+                                <select name="empresa" class="form-select">
+                                    <option value="">DINIZ PINHEIRO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Data inicial</label>
+                                <input type="date" name="data_inicial" class="form-control" value="{{ today }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Data final</label>
+                                <input type="date" name="data_final" class="form-control" value="{{ today }}">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Pesquisar</button>
+                            </div>
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Pagar/Receber</th>
+                                        <th>Nº Documento</th>
+                                        <th>Cliente | Fornecedor</th>
+                                        <th>Dt. Emissão</th>
+                                        <th>Dt. Vencimento</th>
+                                        <th>Pagar</th>
+                                        <th>Receber</th>
+                                        <th>Celular</th>
+                                        <th>Forma</th>
+                                        <th>Tipo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if contas_hoje %}
+                                        {% for conta in contas_hoje %}
+                                        <tr>
+                                            <td>{{ 'Pagar' if conta.cp_reg else 'Receber' }}</td>
+                                            <td>{{ conta.cr_numero or conta.cp_numero }}</td>
+                                            <td>{{ conta.cliente.cli_nome if conta.cliente else conta.fornecedor.forn_razao if conta.fornecedor else '–' }}</td>
+                                            <td>{{ conta.cr_data_emissao.strftime('%d/%m/%Y') if conta.cr_data_emissao else conta.cp_data_emissao.strftime('%d/%m/%Y') if conta.cp_data_emissao else '–' }}</td>
+                                            <td>{{ conta.cr_data_vencimento.strftime('%d/%m/%Y') if conta.cr_data_vencimento else conta.cp_data_vencimento.strftime('%d/%m/%Y') if conta.cp_data_vencimento else '–' }}</td>
+                                            <td>R$ {{ "%.2f"|format(conta.cp_valor) if conta.cp_reg else '0,00' }}</td>
+                                            <td>R$ {{ "%.2f"|format(conta.cr_valor) if conta.cr_reg else '0,00' }}</td>
+                                            <td>–</td>
+                                            <td>{{ conta.cr_forma_pagamento if conta.cr_reg else conta.cp_forma_pagamento if conta.cp_reg else '–' }}</td>
+                                            <td>{{ 'CREDIARIO PRÓPRIO' if conta.cr_reg else 'CREDIARIO PRÓPRIO' if conta.cp_reg else '–' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="10" class="text-center">Nenhuma conta para hoje.</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-lock me-1"></i> Liberar bloqueados
+                            </button>
+                            <span class="badge bg-warning">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Transações aguardando liberação
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📌 TOTENS RECOLHIDOS (abaixo do bloco principal) -->
+
+            <!-- TOTEM: Rotinas automáticas programadas -->
+            <div class="card mb-3">
+                <div class="card-header bg-totem-amarelo d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-gear me-2"></i> Rotinas automáticas programadas</span>
+                    <!-- Botão de configuração -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" type="button" id="rotinasConfigDropdown" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear-fill"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="rotinasConfigDropdown">
+                            <li><a class="dropdown-item" href="#">Nova Rotina</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Importar Rotinas</a></li>
+                            <li><a class="dropdown-item" href="#">Exportar Rotinas</a></li>
+                        </ul>
+                    </div>
+                    <!-- Botão de collapse -->
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#rotinas" aria-expanded="false" aria-controls="rotinas">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="rotinas">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Descrição</th>
+                                        <th>Intervalo de execução</th>
+                                        <th>Última execução</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Linha 1: Erro (fundo vermelho) -->
+                                    <tr class="table-danger">
+                                        <td>Acumuladores de cliente (compra média/dia, total aberto financeiro e total transação sem faturamento)</td>
+                                        <td>Diária</td>
+                                        <td>29/12/2025 06:00:05</td>
+                                    </tr>
+                                    <!-- Linha 2: Erro -->
+                                    <tr class="table-danger">
+                                        <td>Atualização das tabelas de NCM</td>
+                                        <td>Diária</td>
+                                        <td>23/12/2025 00:00:08</td>
+                                    </tr>
+                                    <!-- Linha 3: Erro -->
+                                    <tr class="table-danger">
+                                        <td>Distribuição DFe</td>
+                                        <td>Diária</td>
+                                        <td>29/12/2025 06:00:03</td>
+                                    </tr>
+                                    <!-- Linha 4: Erro -->
+                                    <tr class="table-danger">
+                                        <td>Integração BRConsulting</td>
+                                        <td>Diária</td>
+                                        <td>28/12/2025 23:00:04</td>
+                                    </tr>
+                                    <!-- Linha 5: Erro -->
+                                    <tr class="table-danger">
+                                        <td>Job de baixar cartão</td>
+                                        <td>Diária</td>
+                                        <td>29/12/2025 00:00:02</td>
+                                    </tr>
+                                    <!-- Linha 6: Erro -->
+                                    <tr class="table-danger">
+                                        <td>Reajuste de preços de família.</td>
+                                        <td>Diária</td>
+                                        <td>29/12/2025 00:00:02</td>
+                                    </tr>
+                                    <!-- Linha 7: OK (sem fundo vermelho) -->
+                                    <tr>
+                                        <td>Registro de posição do estoque virada do mês.</td>
+                                        <td>Mensal</td>
+                                        <td>01/12/2025 00:00:05</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saldo bancário -->
+            <div class="card mb-3">
+                <div class="card-header bg-totem-azul d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-cash-stack me-2"></i> Saldo bancário</span>
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#saldo" aria-expanded="false">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="saldo">
+                    <div class="card-body">
+                        <div class="alert alert-success">R$ 8.500,00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extratos sem conciliação -->
+            <div class="card mb-3">
+                <div class="card-header bg-totem-cinza d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Extratos sem conciliação (últimos 3 meses)</span>
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#extratos" aria-expanded="false">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="extratos">
+                    <div class="card-body">
+                        <div class="alert alert-info">Nenhum extrato pendente.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contatos a realizar -->
+            <div class="card mb-3">
+                <div class="card-header bg-totem-cinza d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-telephone me-2"></i> Contatos a realizar</span>
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#contatos" aria-expanded="false">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="contatos">
+                    <div class="card-body">
+                        <div class="alert alert-secondary">Nenhum contato pendente.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA COBRANÇA -->
+        <div class="tab-pane fade" id="cobranca" role="tabpanel">
+            <div class="alert alert-info">
+                <i class="bi bi-envelope me-2"></i> Módulo de Cobrança em desenvolvimento.
+            </div>
+        </div>
+
+        <!-- ABA CAIXAS -->
+        <div class="tab-pane fade" id="caixas" role="tabpanel">
+            <div class="alert alert-info">
+                <i class="bi bi-cash me-2"></i> Módulo de Caixas em desenvolvimento.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Ajuste de Preços{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Ajuste de Preços e Margens</h2>
+
+    <!-- Botão Voltar -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <form method="POST" action="{{ url_for('entradas.confirmar_entrada') }}">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Compra (R$)</th>
+                        <th>Venda (R$)</th>
+                        <th>Margem (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in dados.produtos %}
+                    <tr>
+                        <td>{{ p.descricao }}</td>
+                        <td>
+                            <input type="number" name="preco_compra_{{ loop.index }}" 
+                                   class="form-control" value="{{ p.preco_unitario|floatformat(2) }}" step="0.01" required>
+                        </td>
+                        <td>
+                            <input type="number" name="preco_venda_{{ loop.index }}" 
+                                   class="form-control" value="{{ (p.preco_unitario * 1.5)|floatformat(2) }}" step="0.01" required>
+                        </td>
+                        <td>
+                            <input type="number" name="margem_{{ loop.index }}" 
+                                   class="form-control" value="50.00" step="0.01" required>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 mt-3">
+            ✅ Confirmar Entrada
+        </button>
+    </form>
+</div>
+{% endblock %}

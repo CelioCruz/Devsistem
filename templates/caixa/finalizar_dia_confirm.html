@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Encerramento do Dia{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card border-warning shadow-sm">
+        <div class="card-header bg-warning text-white">
+            <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i> Confirmar Encerramento do Dia</h5>
+        </div>
+        <div class="card-body">
+            <p class="lead">Você realmente deseja encerrar o dia?</p>
+            <p class="text-muted">
+                Esta ação irá finalizar todos os caixas do dia e gerar o resumo financeiro.
+                Não será possível realizar novas vendas após o encerramento.
+            </p>
+            
+            <form method="POST">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-2"></i> Sim, encerrar dia
+                    </button>
+                    <a href="{{ url_for('caixa.index') }}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle me-2"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

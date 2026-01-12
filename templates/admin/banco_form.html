@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{% if banco %}Editar Banco{% else %}Novo Banco{% endif %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{% if banco %}Editar Banco{% else %}Novo Banco{% endif %}</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+          {{ message|safe }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    <div class="mb-3">
+      <label for="ban_codigo" class="form-label">Código (ex: 001)</label>
+      <input type="text" class="form-control" id="ban_codigo" name="ban_codigo"
+        value="{{ request.form.ban_codigo or (banco.ban_codigo if banco else '') }}" maxlength="5" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="ban_nome" class="form-label">Nome do Banco</label>
+      <input type="text" class="form-control" id="ban_nome" name="ban_nome"
+        value="{{ request.form.ban_nome or (banco.ban_nome if banco else '') }}" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ url_for('admin.listar_bancos') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

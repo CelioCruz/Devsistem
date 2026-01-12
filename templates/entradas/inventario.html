@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Inventário{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Inventário</h2>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar ao Controle de Entradas
+        </a>
+    </div>
+
+    <!-- Controles de busca e filtro -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label for="busca" class="form-label">Buscar produto (pressione F2 para focar)</label>
+            <input type="text" id="busca" class="form-control"
+                   placeholder="Código ou descrição (ex: 1563117, KIPL, lente...)">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Categoria</label>
+            <select id="categoria" class="form-select">
+                <option value="">Todas</option>
+                <option value="armacao">Armação (código inicia com 1)</option>
+                <option value="lente">Lente (código inicia com 0)</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button id="limpar-filtro" class="btn btn-outline-secondary btn-sm">Limpar</button>
+        </div>
+    </div>
+
+    <!-- Tabela de resultados -->
+    <form id="form-inventario" method="POST">
+        <div class="table-responsive">
+            <table class="table table-striped" id="tabela-produtos">
+                <thead class="table-light">
+                    <tr>
+                        <th>COD</th>
+                        <th>Descrição</th>
+                        <th>Compra (R$)</th>
+                        <th>Venda (R$)</th>
+                        <th>Margem (%)</th>
+                        <th>Quantidade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produtos %}
+                    <tr>
+                        <td>{{ p.prod_codigo }}</td>
+                        <td>{{ p.prod_descricao }}</td>
+                        <td>{{ '%.2f'|format(p.prod_preco_compra or 0) }}</td>
+                        <td>
+                            <input type="number" name="preco_venda_{{ p.prod_reg }}" 
+                                   value="{{ '%.2f'|format(p.prod_preco_venda or 0) }}" 
+                                   class="form-control" step="0.01" min="0">
+                        </td>
+                        <td>
+                            {% if p.prod_preco_compra and p.prod_preco_compra > 0 %}
+                                {{ '%.2f'|format(((p.prod_preco_venda or 0) - p.prod_preco_compra) / p.prod_preco_compra * 100) }}
+                            {% else %}
+                                0.00
+                            {% endif %}
+                        </td>
+                        <td>
+                            <input type="number" name="quantidade_{{ p.prod_reg }}" 
+                                   value="{{ p.prod_quantidade or 0 }}" 
+                                   class="form-control" min="0" step="1">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ url_for('entradas.index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Salvar Alterações
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Foco no campo de busca ao pressionar F2
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F2') {
+        e.preventDefault();
+        document.getElementById('busca').focus();
+    }
+});
+
+// Função de busca
+function filtrarProdutos() {
+    const busca = document.getElementById('busca').value.trim();
+    const categoria = document.getElementById('categoria').value;
+
+    fetch(`{{ url_for('entradas.inventario') }}?q=${encodeURIComponent(busca)}&categoria=${categoria}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.querySelector('#tabela-produtos tbody');
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Nenhum produto encontrado.</td></tr>`;
+            return;
+        }
+
+        data.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${p.codigo}</td>
+                <td>${p.descricao}</td>
+                <td>${p.compra.toFixed(2)}</td>
+                <td><input type="number" name="preco_venda_${p.id}" value="${p.venda.toFixed(2)}" class="form-control" step="0.01" min="0"></td>
+                <td>${p.margem.toFixed(2)}</td>
+                <td><input type="number" name="quantidade_${p.id}" value="${p.quantidade}" class="form-control" min="0" step="1"></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+// Eventos
+document.getElementById('busca').addEventListener('input', filtrarProdutos);
+document.getElementById('categoria').addEventListener('change', filtrarProdutos);
+document.getElementById('limpar-filtro').addEventListener('click', function() {
+    document.getElementById('busca').value = '';
+    document.getElementById('categoria').value = '';
+    filtrarProdutos();
+});
+
+// Carrega inicialmente
+filtrarProdutos();
+</script>
+{% endblock %}

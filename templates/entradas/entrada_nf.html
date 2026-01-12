@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Entrada por NF-e{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho com título e botão Voltar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="bi bi-file-earmark-text me-2"></i> Entrada por NF-e</h3>
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <!-- Barra de botões principais -->
+    <div class="mb-4 d-flex gap-2">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('formEntrada').submit();">
+            <i class="fas fa-save me-1"></i> Gravar (F5)
+        </button>
+        <button type="button" class="btn btn-success" onclick="confirmarAprovacao();">
+            <i class="fas fa-check me-1"></i> Aprovar (F6)
+        </button>
+        <button type="button" class="btn btn-info" onclick="alert('Histórico ainda não implementado');">
+            <i class="fas fa-history me-1"></i> Histórico
+        </button>
+    </div>
+
+    <form id="formEntrada" method="POST" enctype="multipart/form-data">
+        <!-- Seção: Dados da NF-e -->
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <strong>📦 Dados da Nota Fiscal</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nf_chave" class="form-label">Chave da NF-e (44 dígitos)</label>
+                        <input type="text" name="nf_chave" id="nf_chave" class="form-control"
+                               placeholder="Ex: 12345678901234567890123456789012345678901234"
+                               value="{{ request.form.nf_chave or '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="xml_file" class="form-label">Ou selecione um arquivo XML</label>
+                        <input type="file" name="xml_file" id="xml_file" class="form-control" accept=".xml">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline-primary mt-3">
+                    <i class="bi bi-cloud-arrow-down me-1"></i> Carregar Produtos
+                </button>
+            </div>
+        </div>
+
+        <!-- Seção: Itens da NF-e (só aparece se houver itens) -->
+        {% if itens %}
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <strong>📋 Itens da NF-e</strong>
+                <span>{{ itens|length }} item(s) carregado(s)</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Descrição</th>
+                                <th>NCM</th>
+                                <th>Qtd</th>
+                                <th>Und.</th>
+                                <th>Valor Unitário</th>
+                                <th>Total</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>{{ item.codigo }}</td>
+                                <td>{{ item.descricao }}</td>
+                                <td>{{ item.ncm }}</td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>{{ item.unidade }}</td>
+                                <td>R$ {{ "%.2f"|format(item.valor_unitario|float) }}</td>
+                                <td>R$ {{ "%.2f"|format(item.valor_total|float) }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary">Editar</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger">Excluir</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra inferior de ações dos itens -->
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-success" onclick="alert('Função Adicionar ainda não implementada');">
+                <i class="fas fa-plus me-1"></i> Adicionar (F8)
+            </button>
+            <button type="button" class="btn btn-warning" onclick="alert('Selecione um item para editar');">
+                <i class="fas fa-edit me-1"></i> Editar
+            </button>
+            <button type="button" class="btn btn-danger" onclick="alert('Selecione um item para excluir');">
+                <i class="fas fa-trash me-1"></i> Excluir
+            </button>
+            <button type="button" class="btn btn-info" onclick="alert('Adicionar item genérico');">
+                <i class="fas fa-tag me-1"></i> Item Genérico
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="alert('Adicionar múltiplos itens');">
+                <i class="fas fa-copy me-1"></i> Adicionar Múltiplos
+            </button>
+            <!-- Botões de navegação -->
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-step-backward"></i></button>
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-chevron-left"></i></button>
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-chevron-right"></i></button>
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-step-forward"></i></button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+function confirmarAprovacao() {
+    if (confirm('Tem certeza que deseja aprovar esta Entrada por NF-e?\nIsso registrará os produtos no estoque.')) {
+        // Aqui você pode enviar para uma rota de aprovação
+        alert('Aprovação enviada!');
+    }
+}
+</script>
+{% endblock %}

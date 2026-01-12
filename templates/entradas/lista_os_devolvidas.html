@@ -1,0 +1,13 @@
+<!-- Em cada linha da tabela -->
+<td>
+    <strong>Fornecedor:</strong> {{ os.fornecedor.forn_fantasia|default('—') }}<br>
+    <strong>Pedido:</strong> {{ os.numero_pedido_fornecedor|default('—') }}
+</td>
+<td>
+    <form method="POST" action="{{ url_for('entradas.liberar_compra_devolvida', os_numero=os.os_numero) }}">
+        <button type="submit" class="btn btn-sm btn-warning"
+                onclick="return confirm('Reativar esta OS com os mesmos dados de compra?')">
+            <i class="bi bi-arrow-repeat me-1"></i> Liberar para Compra
+        </button>
+    </form>
+</td>

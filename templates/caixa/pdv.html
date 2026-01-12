@@ -1,0 +1,82 @@
+<div class="row">
+    <div class="col-md-8">
+        <h5>Buscar Produto</h5>
+        <form method="GET">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Código ou descrição" name="q">
+                <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+            </div>
+        </form>
+        
+        <!-- Lista de produtos (resultado da busca) -->
+        {% if produtos %}
+        <table class="table table-sm mt-2">
+            <thead><tr><th>Código</th><th>Descrição</th><th>Preço</th><th>Ação</th></tr></thead>
+            <tbody>
+                {% for p in produtos %}
+                <tr>
+                    <td>{{ p.prod_codigo_barras }}</td>
+                    <td>{{ p.prod_nome }}</td>
+                    <td>R$ {{ "%.2f"|format(p.prod_preco_venda)|replace('.', ',') }}</td>
+                    <td>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="produto_id" value="{{ p.prod_reg }}">
+                            <input type="number" name="quantidade" value="1" min="1" style="width:60px;">
+                            <button type="submit" class="btn btn-sm btn-primary">Adicionar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        
+        <!-- Itens da venda atual -->
+        <h5 class="mt-4">Itens da Venda</h5>
+        <table class="table table-bordered">
+            <thead><tr><th>Produto</th><th>Qtd</th><th>Valor</th><th>Ação</th></tr></thead>
+            <tbody>
+                <!-- Itens da sessão ou venda temporária -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="col-md-4">
+        <h5>Finalizar Venda</h5>
+        <div class="card p-3">
+            <p><strong>Total:</strong> R$ {{ total|default('0,00') }}</p>
+            
+            <!-- Formas de pagamento -->
+            <div class="mb-2">
+                <label><input type="radio" name="pagamento" value="dinheiro" checked> Dinheiro</label>
+            </div>
+            <div class="mb-2">
+                <label><input type="radio" name="pagamento" value="credito"> Cartão Crédito</label>
+                <div id="credito-opcoes" style="display:none; margin-left:20px;">
+                    <input type="number" name="parcelas" value="1" min="1" max="12" style="width:60px;">x
+                    <input type="number" name="taxa" placeholder="% taxa" style="width:80px;">
+                </div>
+            </div>
+            <div class="mb-2">
+                <label><input type="radio" name="pagamento" value="debito"> Cartão Débito</label>
+                <div id="debito-opcoes" style="display:none; margin-left:20px;">
+                    <input type="number" name="taxa_debito" placeholder="% taxa" style="width:80px;">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success w-100 mt-3">Finalizar Venda</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mostrar/opções de cartão
+document.querySelectorAll('input[name="pagamento"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('credito-opcoes').style.display = 
+            this.value === 'credito' ? 'block' : 'none';
+        document.getElementById('debito-opcoes').style.display = 
+            this.value === 'debito' ? 'block' : 'none';
+    });
+});
+</script>

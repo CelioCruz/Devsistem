@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Conferir Inventário{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Conferir e Associar Produtos</h2>
+    <form method="POST" action="{{ url_for('entradas.confirmar_inventario') }}">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome do Produto</th>
+                    <th>Quantidade</th>
+                    <th>Preço</th>
+                    <th>Associar a Produto Cadastrado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td>{{ item.nome }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>{{ "%.2f"|format(item.preco) }}</td>
+                    <td>
+                        <select name="produto_id" class="form-control" required>
+                            <option value="">Selecione...</option>
+                            {% for prod in produtos_cadastrados %}
+                            <option value="{{ prod.prod_reg }}">{{ prod.prod_nome }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success">Confirmar Entrada</button>
+    </form>
+</div>
+{% endblock %}

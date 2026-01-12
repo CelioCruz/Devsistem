@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - Produtos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="fas fa-box me-2"></i> Produtos</h3>
+    <button class="btn btn-outline-secondary btn-sm"
+        onclick="window.location.href='{{ url_for('admin.cadastro') }}'">
+        ← Voltar ao Cadastro
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white d-flex align-items-center">
+        <i class="fas fa-clipboard-list me-2"></i>
+        <strong>📋 Gerenciar Produtos</strong>
+    </div>
+    <div class="card-body">
+        <!-- Abas -->
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if aba_ativa == 'armacao' }}" 
+                   href="{{ url_for('admin.listar_produtos', aba='armacao') }}">ARMAÇÃO</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" 
+                   href="{{ url_for('admin.listar_lentes_genericas') }}">
+                    <i class="fas fa-glasses me-1"></i> LENTES
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if aba_ativa == 'servico' }}" 
+                   href="{{ url_for('admin.listar_produtos', aba='servico') }}">SERVIÇOS</a>
+            </li>
+        </ul>
+
+        <!-- Conteúdo das abas -->
+        <div class="tab-content">
+            
+            <!-- ARMAÇÃO -->
+            <div class="tab-pane fade {{ 'show active' if aba_ativa == 'armacao' }}" id="tab-armacao">
+                <a href="{{ url_for('admin.novo_produto_tipo', tipo='armacao') }}" class="btn btn-success mb-3">+ Nova Armação</a>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>COD</th>
+                                <th>FORNECEDOR</th>
+                                <th>TIPO</th>
+                                <th>PRODUTO</th>
+                                <th>COMPRA</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if produtos_armacao %}
+                                {% for p in produtos_armacao %}
+                                <tr>
+                                    <td>{{ p.prod_codigo_barras }}</td>
+                                    <td>{{ p.fabricante.forn_fantasia if p.fabricante else '—' }}</td>
+                                    <td>{{ p.prod_tipo_aramacao or '' }}</td>
+                                    <td>{{ p.prod_nome|upper }}</td>
+                                    <td>R$ {{ "%.2f"|format(p.prod_preco_custo)|replace('.', ',') }}</td>
+                                    <td>
+                                        {% if p.prod_ativo %}
+                                            <span class="badge bg-success">ATIVO</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">DESATIVADO</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">NENHUMA ARMAÇÃO CADASTRADA.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
+            
+            <!-- Conteúdo: SERVIÇOS -->
+            <div class="tab-pane fade {{ 'show active' if aba_ativa == 'servico' }}" id="tab-servico">
+                <a href="{{ url_for('admin.novo_produto_tipo', tipo='servico') }}" class="btn btn-success mb-3">+ Novo Serviço</a>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>COD</th>
+                                <th>DESCRIÇÃO</th>
+                                <th>COMPRA</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if produtos_servico %}
+                                {% for p in produtos_servico %}
+                                <tr>
+                                    <td>{{ p.prod_codigo_barras }}</td>
+                                    <td>{{ p.prod_descricao_servico|upper }}</td>
+                                    <td>R$ {{ "%.2f"|format(p.prod_preco_custo)|replace('.', ',') }}</td>
+                                    <td>
+                                        {% if p.prod_ativo %}
+                                            <span class="badge bg-success">ATIVO</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">DESATIVADO</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">NENHUM SERVIÇO CADASTRADO.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="container mt-3">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message|safe }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+{% endblock %}

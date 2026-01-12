@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Ambientes{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Ambientes do Sistema</h2>
+        <a href="{{ url_for('admin.cadastro') }}" class="btn btn-outline-secondary btn-sm">← Voltar ao Cadastro</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Cadastrar Novo Ambiente</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.listar_ambientes') }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="amb_nome">Nome do Ambiente *</label>
+                            <input type="text" class="form-control" id="amb_nome" name="amb_nome" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="amb_descricao">Descrição (opcional)</label>
+                            <input type="text" class="form-control" id="amb_descricao" name="amb_descricao">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Cadastrar Ambiente</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Ambientes Cadastrados</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ambiente in ambientes %}
+                    <tr>
+                        <td>{{ ambiente.amb_id }}</td>
+                        <td>{{ ambiente.amb_nome }}</td>
+                        <td>{{ ambiente.amb_descricao or '-' }}</td>
+                        <td>
+                            {% if ambiente.amb_ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin.toggle_ambiente_ativo') }}" style="display:inline;">
+                                <input type="hidden" name="amb_id" value="{{ ambiente.amb_id }}">
+                                <input type="hidden" name="ativo" value="{{ 'false' if ambiente.amb_ativo else 'true' }}">
+                                <button type="submit" class="btn btn-sm btn-{{ 'secondary' if ambiente.amb_ativo else 'success' }}">
+                                    {{ 'Desativar' if ambiente.amb_ativo else 'Ativar' }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

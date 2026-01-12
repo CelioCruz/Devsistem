@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Entrada{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Editar Entrada</h2>
+    <p><strong>Entrada NF-e:</strong> {{ entrada.nf_numero or '–' }} | 
+       <strong>Fornecedor:</strong> {{ entrada.fornecedor_id or '–' }}</p>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Foto</th>
+                    <th>Descrição NF-e</th>
+                    <th>Código Sistema</th>
+                    <th>Descrição Cadastrada</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in entrada.itens %}
+                <tr>
+                    <td>
+                        {% if item.produto and item.produto.prod_codigo_arma %}
+                            {% set foto_url = url_for('static', filename='fotos_armacoes/' + item.produto.prod_codigo_arma + '.jpg') %}
+                            <img src="{{ foto_url }}" 
+                                 width="60" 
+                                 class="img-thumbnail"
+                                 style="cursor: zoom-in;"
+                                 onclick="abrirFoto('{{ foto_url }}')"
+                                 onerror="this.style.display='none'">
+                        {% endif %}
+                    </td>
+                    <td>{{ item.preco_unitario|float > 0 and 'Armação' or 'Item' }}</td>
+                    <td>{{ item.produto.prod_codigo_barras if item.produto else '—' }}</td>
+                    <td>{{ item.produto.prod_nome if item.produto else '—' }}</td>
+                    <td>
+                        {% if item.produto_id %}
+                            <span class="badge bg-success">Associado</span>
+                        {% else %}
+                            {% if item.preco_unitario > 0 %}
+                                <a href="{{ url_for('admin.novo_produto_tipo', 
+                                                    tipo='armacao', 
+                                                    item_id=item.id, 
+                                                    preco=item.preco_unitario,
+                                                    fornecedor=item.entrada.fornecedor_id) }}"
+                                   class="btn btn-sm btn-primary">
+                                    Cadastrar
+                                </a>
+                            {% else %}
+                                <span class="badge bg-warning">Não é armação</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="{{ url_for('entradas.index') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<!-- Modal para foto grande -->
+<div id="modal-foto" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
+    <img id="foto-grande" src="" style="max-width:90%; max-height:90%; border:3px solid white;">
+    <button onclick="fecharModal()" style="position:absolute; top:20px; right:30px; background:white; border:none; font-size:24px; cursor:pointer;">×</button>
+</div>
+
+<script>
+function abrirFoto(url) {
+    document.getElementById('foto-grande').src = url;
+    document.getElementById('modal-foto').style.display = 'flex';
+}
+function fecharModal() {
+    document.getElementById('modal-foto').style.display = 'none';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
+</script>
+{% endblock %}

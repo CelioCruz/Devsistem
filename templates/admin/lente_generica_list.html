@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Lentes Genéricas{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="fas fa-glasses me-2"></i> Lentes Genéricas</h3>
+    <a href="{{ url_for('admin.listar_produtos') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <a href="{{ url_for('admin.nova_lente_generica') }}" class="btn btn-success mb-3">+ Nova Lente Genérica</a>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>COD</th>
+                        <th>FORNECEDOR</th>
+                        <th>TIPO</th>
+                        <th>PRODUTO</th>
+                        <th>ESF</th>
+                        <th>CIL</th>
+                        <th>ADD</th>
+                        <th>ALT</th>
+                        <th>COMPRA</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if genericas %}
+                        {% for g in genericas %}
+                        <tr>
+                            <td>{{ g.codigo_base }}</td>
+                            <td>{{ g.fabricante.forn_fantasia if g.fabricante else '—' }}</td>
+                            <td>{{ g.tipo_lente }}</td>
+                            <td>
+                                {{ g.descricao|upper }}
+                                {% if g.antirreflexo %} {{ g.antirreflexo|upper }}{% endif %}
+                                {% if g.escurecimento %} {{ g.escurecimento|upper }}{% endif %}
+                            </td>
+                            <td>
+                                {{ "%.2f"|format(g.esf_min)|replace('.', ',') }}/{{ "%.2f"|format(g.esf_max)|replace('.', ',') }}
+                            </td>
+                            <td>
+                                {{ "%.2f"|format(g.cil_max)|replace('.', ',') }}/{{ "%.2f"|format(g.cil_min)|replace('.', ',') }}
+                            </td>
+                            <td>
+                                {% if g.add_min != g.add_max %}
+                                    {{ "%.2f"|format(g.add_min)|replace('.', ',') }}/{{ "%.2f"|format(g.add_max)|replace('.', ',') }}
+                                {% else %}
+                                    {{ "%.2f"|format(g.add_min)|replace('.', ',') }}
+                                {% endif %}
+                            </td>
+                            <td>{{ g.altura_fixa or '—' }}</td>
+                            <td>R$ {{ "%.2f"|format(g.preco_base)|replace('.', ',') }}</td>
+                            <td>
+                                {% if g.fabricante and g.fabricante.forn_ativo %}
+                                    <span class="badge bg-success">ATIVO</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">DESATIVADO</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="10" class="text-center">NENHUMA LENTE GENÉRICA CADASTRADA.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

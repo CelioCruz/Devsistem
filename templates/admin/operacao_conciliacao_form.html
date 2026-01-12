@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{% if operacao %}Editar Operação{% else %}Nova Operação{% endif %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{% if operacao %}Editar Operação{% else %}Nova Operação para Conciliação{% endif %}</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+          {{ message|safe }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    <div class="mb-3">
+      <label for="opc_descricao" class="form-label">Descrição</label>
+      <input type="text" class="form-control" id="opc_descricao" name="opc_descricao"
+        value="{{ request.form.opc_descricao or (operacao.opc_descricao if operacao else '') }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="opc_tipo" class="form-label">Tipo</label>
+      <select class="form-select" id="opc_tipo" name="opc_tipo" required>
+        <option value="">Selecione</option>
+        <option value="entrada" {% if request.form.opc_tipo == 'entrada' or (operacao and operacao.opc_tipo == 'entrada') %}selected{% endif %}>Entrada</option>
+        <option value="saida" {% if request.form.opc_tipo == 'saida' or (operacao and operacao.opc_tipo == 'saida') %}selected{% endif %}>Saída</option>
+        <option value="ajuste" {% if request.form.opc_tipo == 'ajuste' or (operacao and operacao.opc_tipo == 'ajuste') %}selected{% endif %}>Ajuste</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ url_for('admin.listar_operacoes_conciliacao') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

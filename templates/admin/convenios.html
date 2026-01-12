@@ -1,0 +1,28 @@
+<!-- Lista de convênios -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in convenios %}
+        <tr>
+            <td>{{ c.conv_nome }}</td>
+            <td>
+                {% if c.conv_ativo %}
+                    <span class="badge bg-success">Ativo</span>
+                {% else %}
+                    <span class="badge bg-secondary">Inativo</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('admin.novo_convenio') }}" class="btn btn-primary">Novo Convênio</a>

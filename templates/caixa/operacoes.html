@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Operações{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column min-vh-100">
+    <!-- Barra superior -->
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-plus-square me-2"></i> Operações</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar para o caixa</a>
+    </div>
+
+    <!-- Área central -->
+    <div class="container-fluid p-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('financeiro.plano_contas') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-cash me-2"></i> Recebimentos
+                    </a>
+                    <a href="{{ url_for('caixa.devolucao') }}" class="btn btn-outline-danger btn-lg">
+                        <i class="bi bi-arrow-return-left me-2"></i> Devolução
+                    </a>
+                    <a href="{{ url_for('caixa.historico_vendas') }}" class="btn btn-outline-info btn-lg">
+                        <i class="bi bi-clock-history me-2"></i> Histórico de Vendas
+                    </a>
+
+                    {% if current_user.us_cad == 'cruzdevsoft' or current_user.us_cad == 'Administrador' %}
+                        <a href="{{ url_for('caixa.cancelar_cupon') }}" class="btn btn-outline-warning btn-lg">
+                            <i class="bi bi-x-circle me-2"></i> Cancelar cupom
+                        </a>
+                    {% endif %}
+
+                    <hr>
+
+                    <a href="{{ url_for('admin.pesquisa_armacoes') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-search me-2"></i> Pesquisa de armações
+                    </a>
+                    <a href="{{ url_for('admin.pesquisa_lentes') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-search me-2"></i> Pesquisa de lentes
+                    </a>
+                    <a href="{{ url_for('admin.pesquisa_produtos') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-search me-2"></i> Pesquisa de produtos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

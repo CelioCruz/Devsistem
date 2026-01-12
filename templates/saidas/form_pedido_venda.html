@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Editar Pedido de Venda{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="bi bi-pencil me-2"></i> Pedido de Venda {{ pedido.oc_numero }}</h3>
+        <a href="{{ url_for('saidas.index') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar para Saidas
+        </a>
+    </div>
+
+    <!-- Barra de botões -->
+    <div class="mb-4 d-flex gap-2">
+        <!-- ❌ SEM botão "Gravar" -->
+        <form method="POST" action="{{ url_for('saidas.finalizar_pedido_venda', pedido_id=pedido.oc_reg) }}">
+            <button type="submit" class="btn btn-success" 
+                    onclick="return confirm('Finalizar este pedido? Isso gerará a Nota Fiscal.')">
+                <i class="bi bi-check-circle me-1"></i> Finalizar Pedido
+            </button>
+        </form>
+        <button class="btn btn-info" disabled>
+            <i class="bi bi-clock me-1"></i> Histórico
+        </button>
+    </div>
+
+    <!-- Dados do pedido -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Cliente:</strong> {{ pedido.fornecedor.forn_razao }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Data de Emissão:</strong> {{ pedido.oc_data_emissao.strftime('%d/%m/%Y') }}</p>
+                </div>
+            </div>
+            <!-- Itens do pedido -->
+            <h5>Itens</h5>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd</th>
+                        <th>Valor Unit.</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in pedido.itens %}
+                    <tr>
+                        <td>{{ item.ioc_descricao }}</td>
+                        <td>{{ item.ioc_quantidade }}</td>
+                        <td>R$ {{ "%.2f"|format(item.ioc_valor_unitario) }}</td>
+                        <td>R$ {{ "%.2f"|format(item.ioc_total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Ordens de Serviço{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column min-vh-100">
+    <!-- Barra superior -->
+    <div class="bg-light border-bottom d-flex align-items-center px-3 py-2">
+        <h5 class="mb-0"><i class="bi bi-glasses me-2"></i> Ordens de Serviço</h5>
+        <a href="{{ url_for('caixa.index') }}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar para o caixa</a>
+    </div>
+
+    <!-- Área central (SEM menu lateral) -->
+    <div class="container-fluid p-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6><i class="bi bi-glasses me-2"></i> Ordens de Serviço</h6>
+                    <button type="button" class="btn btn-sm btn-warning" onclick="marcarComoEntregue()">
+                        <i class="bi bi-check-circle me-1"></i> Entregar
+                    </button>
+                </div>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <!-- Filtros -->
+                <form method="GET" class="mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label for="data_de" class="form-label">De:</label>
+                            <input type="date" class="form-control" id="data_de" name="data_de" value="{{ data_de }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="data_ate" class="form-label">Até:</label>
+                            <input type="date" class="form-control" id="data_ate" name="data_ate" value="{{ data_ate }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="nome_cliente" class="form-label">Nome do cliente:</label>
+                            <input type="text" class="form-control" id="nome_cliente" name="nome_cliente" value="{{ nome_cliente }}" placeholder="Digite o nome">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">Pesquisar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Tabela -->
+                {% if ordens %}
+                    <div class="table-responsive flex-grow-1">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nº OS</th>
+                                    <th>Cliente</th>
+                                    <th>Data Emissão</th>
+                                    <th>Data Entrega</th>
+                                    <th>Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for os in ordens %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('caixa.visualizar_os', os_numero=os.os_numero) }}" class="text-decoration-none">
+                                            {{ os.os_numero }}
+                                        </a>
+                                    </td>
+                                    <td>{{ os.cliente.cli_nome if os.cliente else '-' }}</td>
+                                    <td>{{ os.data_emissao.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ os.data_prevista_cliente.strftime('%d/%m/%Y') if os.data_prevista_cliente else '-' }}</td>
+                                    <td>
+                                        {% if os.situacao_cor == 'success' %}
+                                            <span class="badge bg-success">No prazo</span>
+                                        {% elif os.situacao_cor == 'warning' %}
+                                            <span class="badge bg-warning">Amanhã</span>
+                                        {% elif os.situacao_cor == 'danger' %}
+                                            <span class="badge bg-danger">Hoje/Atrasado</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Sem previsão</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info flex-grow-1 d-flex align-items-center justify-content-center">
+                        Nenhuma ordem de serviço encontrada.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 📥 RODAPÉ COM BARRA DE AÇÕES -->
+    <div class="bg-light border-top d-flex justify-content-between align-items-center px-3 py-2">
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="location.reload()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Atualizar
+            </button>
+        </div>
+
+        <div class="input-group w-50">
+            <span class="input-group-text">Pesquisa Rápida</span>
+            <input type="text" class="form-control" id="pesquisa-os" placeholder="Digite nº da OS ou cliente">
+            <button class="btn btn-outline-secondary" onclick="buscarOS()">Buscar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function buscarOS() {
+    const termo = document.getElementById('pesquisa-os').value.trim();
+    if (!termo) return;
+    
+    window.location.href = "{{ url_for('caixa.visualizar_os', os_numero='PLACEHOLDER') }}".replace('PLACEHOLDER', encodeURIComponent(termo));
+}
+
+function marcarComoEntregue() {
+    alert('Função "Entregar" será implementada.');
+}
+</script>
+{% endblock %}

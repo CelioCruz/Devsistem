@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Conferência de Entrada{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Conferência de Entrada</h2>
+
+    <!-- Botão Voltar (canto direito do conteúdo) -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar ao Controle de Entradas
+        </a>
+    </div>
+
+    <!-- Cabeçalho -->
+    {% if dados.cabecalho %}
+    <div class="row g-3 mb-4 p-3 border rounded bg-light">
+        <div class="col-md-3"><strong>NF:</strong> {{ dados.cabecalho.nf_numero or '–' }}</div>
+        <div class="col-md-2"><strong>Série:</strong> {{ dados.cabecalho.serie or '–' }}</div>
+        <div class="col-md-2"><strong>Emissão:</strong> {{ dados.cabecalho.data_emissao or '–' }}</div>
+        <div class="col-md-3"><strong>Fornecedor:</strong> {{ dados.cabecalho.fornecedor_cnpj or '–' }}</div>
+        <div class="col-md-2"><strong>Tipo:</strong> {{ dados.origem|title }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Tabela de Produtos -->
+    <h5>Produtos</h5>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descrição</th>
+                    <th>Qtd</th>
+                    <th>Vlr. Unit.</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if dados.produtos %}
+                    {% for p in dados.produtos %}
+                    <tr>
+                        <td>{{ p.codigo }}</td>
+                        <td>{{ p.descricao }}</td>
+                        <td>{{ '%g'|format(p.quantidade) }}</td>
+                        <td>{{ '%.2f'|format(p.preco_unitario) }}</td>
+                        <td>
+                            {% if p.cadastrado %}
+                                <span class="badge bg-success">Cadastrado</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Não cadastrado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Nenhum produto encontrado.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Formulário para Confirmar Entrada -->
+    <form method="POST" action="{{ url_for('entradas.confirmar_entrada') }}">
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ url_for('entradas.entrada_nf') if dados.origem in ('chave','xml') else url_for('entradas.entrada_manual') }}"
+               class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+
+            <!-- Botão de Devolução (só se for NF-e) -->
+            {% if dados.origem in ('chave', 'xml') and dados.cabecalho.nf_chave %}
+                <a href="{{ url_for('entradas.devolucao_nf', nf_chave=dados.cabecalho.nf_chave) }}"
+                   class="btn btn-outline-warning">
+                    ↺ Gerar Devolução
+                </a>
+            {% endif %}
+
+            <!-- Botão Ajustar Preços -->
+            <div>
+                <a href="{{ url_for('entradas.ajustar_precos') }}" class="btn btn-warning me-2">
+                    📊 Ajustar Preços
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Confirmar Entrada
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

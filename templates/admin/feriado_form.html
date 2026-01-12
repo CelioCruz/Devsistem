@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - {% if feriado %}Editar Feriado{% else %}Novo Feriado{% endif %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>
+        <i class="fas fa-calendar-times me-2"></i>
+        {% if feriado %}Editar Feriado{% else %}Novo Feriado{% endif %}
+    </h3>
+    <button class="btn btn-outline-secondary btn-sm"
+        onclick="window.location.href='{{ url_for('admin.listar_feriados') }}'">
+        ← Voltar aos Feriados
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <i class="fas fa-edit me-2"></i>
+        <strong>📝 {% if feriado %}Editar{% else %}Cadastrar{% endif %} Feriado</strong>
+    </div>
+    <div class="card-body">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label for="fer_descricao" class="form-label">Descrição *</label>
+                    <input type="text" class="form-control" id="fer_descricao" name="fer_descricao"
+                        value="{{ request.form.fer_descricao or (feriado.fer_descricao if feriado else '') }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="fer_data" class="form-label">Data *</label>
+                    <input type="date" class="form-control" id="fer_data" name="fer_data"
+                        value="{{ request.form.fer_data or (feriado.fer_data.strftime('%Y-%m-%d') if feriado and feriado.fer_data else '') }}" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="fer_tipo" class="form-label">Tipo</label>
+                <select class="form-select" id="fer_tipo" name="fer_tipo">
+                    <option value="nacional" {% if (request.form.fer_tipo == 'nacional') or (feriado and feriado.fer_tipo == 'nacional') %}selected{% endif %}>Nacional</option>
+                    <option value="estadual" {% if (request.form.fer_tipo == 'estadual') or (feriado and feriado.fer_tipo == 'estadual') %}selected{% endif %}>Estadual</option>
+                    <option value="municipal" {% if (request.form.fer_tipo == 'municipal') or (feriado and feriado.fer_tipo == 'municipal') %}selected{% endif %}>Municipal</option>
+                </select>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Salvar Feriado
+                </button>
+                <a href="{{ url_for('admin.listar_feriados') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

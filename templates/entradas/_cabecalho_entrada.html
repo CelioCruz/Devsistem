@@ -1,0 +1,11 @@
+# Na rota entrada_nf, após extrair dados da NF-e
+dados_nf = {
+    'nf_numero': '12345',
+    'serie': '1',
+    'data_emissao': '2025-12-02',
+    'data_recebimento': datetime.now().strftime('%Y-%m-%d'),
+    'fornecedor_cnpj': '12345678901234',  # para buscar no banco
+    'natureza_operacao': '1.102',
+    'nota_fiscal': 'recebida',
+    'tipo_nota': 'nfe'
+}

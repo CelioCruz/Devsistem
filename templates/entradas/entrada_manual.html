@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}Entrada Manual{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho com título e botão Voltar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="bi bi-pencil me-2"></i> Entrada Manual</h3>
+        <a href="{{ url_for('entradas.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <!-- 🔝 Barra de botões principais (PADRÃO ORDEM DE COMPRA) -->
+    <div class="mb-4 d-flex gap-2">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('formEntrada').submit();">
+            <i class="fas fa-save me-1"></i> Gravar (F5)
+        </button>
+        <button type="button" class="btn btn-success" onclick="confirmarAprovacao();">
+            <i class="fas fa-check me-1"></i> Aprovar (F6)
+        </button>
+        <button type="button" class="btn btn-info" onclick="alert('Histórico ainda não implementado');">
+            <i class="fas fa-history me-1"></i> Histórico
+        </button>
+    </div>
+
+    <form id="formEntrada" method="POST">
+        <!-- 📦 Dados Principais (dentro de um card) -->
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <strong>📋 Dados da Entrada Manual</strong>
+            </div>
+            <div class="card-body">
+                <!-- Cabeçalho -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label>Empresa</label>
+                        <input type="text" class="form-control" value="{{ current_user.empresa_nome or '–' }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Nota fiscal</label>
+                        <div>
+                            <input type="radio" name="nota_fiscal" value="recebida" checked> Recebida
+                            <input type="radio" name="nota_fiscal" value="nao_recebida"> Não-recebida
+                            <input type="radio" name="nota_fiscal" value="nao_emitida"> Não emitida
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Tipo nota</label>
+                        <div>
+                            <input type="radio" name="tipo_nota" value="conventional" checked> Conventional
+                            <input type="radio" name="tipo_nota" value="nfe"> NFE
+                            <input type="radio" name="tipo_nota" value="nfe_servico"> NFE Serviço
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label>Nro. da nota:</label>
+                        <input type="text" name="nf_numero" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label>Série:</label>
+                        <input type="text" name="serie" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label>Emissão:</label>
+                        <input type="date" name="data_emissao" class="form-control" value="{{ today }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label>Recebimento:</label>
+                        <input type="date" name="data_recebimento" class="form-control" value="{{ today }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Fornecedor:</label>
+                        <select name="fornecedor_id" class="form-select">
+                            <option value="">Selecione...</option>
+                            {% for f in fornecedores %}
+                                <option value="{{ f.forn_cnpj }}">{{ f.forn_nome_fantasia }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label>Natureza de operação:</label>
+                        <select name="natureza_operacao" class="form-select">
+                            <option value="">(Nenhuma)</option>
+                            {% for no in naturezas %}
+                                <option value="{{ no.no_codigo }}">{{ no.no_codigo }} - {{ no.no_descricao }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📋 Itens da Entrada -->
+        <div class="card mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <strong>📦 Itens da Entrada</strong>
+                <button type="button" id="add-item" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus me-1"></i> Adicionar (F8)
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="itens">
+                    <div class="row g-2 mb-2 item">
+                        <div class="col-md-3">
+                            <input type="text" name="codigo_produto" class="form-control" placeholder="Código" required>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="descricao_produto" class="form-control" placeholder="Descrição" required>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="quantidade" class="form-control" placeholder="Qtd" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="preco_unitario" class="form-control" placeholder="R$" step="0.01" value="0.00" required>
+                        </div>
+                        <div class "col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔽 Barra inferior de ações dos itens (PADRÃO ORDEM DE COMPRA) -->
+        <div class="d-flex gap-2 mb-4">
+            <button type="button" class="btn btn-warning" onclick="alert('Selecione um item para editar');">
+                <i class="fas fa-edit me-1"></i> Editar
+            </button>
+            <button type="button" class="btn btn-danger" onclick="alert('Selecione um item para excluir');">
+                <i class="fas fa-trash me-1"></i> Excluir
+            </button>
+            <button type="button" class="btn btn-info" onclick="alert('Adicionar item genérico');">
+                <i class="fas fa-tag me-1"></i> Item Genérico
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="alert('Adicionar múltiplos itens');">
+                <i class="fas fa-copy me-1"></i> Adicionar Múltiplos
+            </button>
+            <!-- Botões de navegação -->
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-step-backward"></i></button>
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-chevron-left"></i></button>
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-chevron-right"></i></button>
+            <button type="button" class="btn btn-outline-dark"><i class="fas fa-step-forward"></i></button>
+        </div>
+
+        <!-- Ações finais -->
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{{ url_for('entradas.index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Avançar para Conferência
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('add-item').addEventListener('click', function() {
+    const container = document.getElementById('itens');
+    const newItem = container.children[0].cloneNode(true);
+    newItem.querySelectorAll('input').forEach(input => input.value = '');
+    container.appendChild(newItem);
+    newItem.querySelector('.remove').addEventListener('click', () => newItem.remove());
+});
+
+// Adicionar evento de remoção ao item original
+document.querySelector('.remove').addEventListener('click', function() {
+    if (document.querySelectorAll('.item').length > 1) {
+        this.closest('.item').remove();
+    }
+});
+
+function confirmarAprovacao() {
+    if (confirm('Tem certeza que deseja aprovar esta Entrada Manual?\nIsso registrará os itens no estoque.')) {
+        alert('Aprovação enviada!');
+    }
+}
+</script>
+{% endblock %}

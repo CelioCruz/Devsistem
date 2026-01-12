@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-wrench me-2"></i> Finalizar OS {{ ordem.os_numero }}</h3>
+    <a href="{{ url_for('entradas.listar_os_finalizacao') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Cliente:</strong> {{ ordem.cliente.cli_nome|upper if ordem.cliente else 'Não informado' }}</p>
+        <p><strong>CV:</strong> {{ ordem.cv_numero }}</p>
+        <p><strong>Status atual:</strong> <span class="badge bg-success">Lente Recebida</span></p>
+        
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Escolha a próxima ação:</label>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="acao" value="montagem" id="acao1" required>
+                    <label class="form-check-label" for="acao1">
+                        <i class="bi bi-truck text-primary me-1"></i> Serviço enviado para montagem
+                    </label>
+                </div>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="acao" value="aguardando_armação" id="acao2">
+                    <label class="form-check-label" for="acao2">
+                        <i class="bi bi-clock text-warning me-1"></i> Serviço aguardando armação para montagem
+                    </label>
+                </div>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="acao" value="devolucao" id="acao3">
+                    <label class="form-check-label" for="acao3">
+                        <i class="bi bi-arrow-return-left text-danger me-1"></i> Serviço devolvido para compra
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mb-3" id="observacao-devolucao" style="display:none;">
+                <label for="observacao_devolucao" class="form-label">Motivo da devolução *</label>
+                <textarea class="form-control" id="observacao_devolucao" name="observacao_devolucao" rows="3" 
+                          placeholder="Descreva o motivo da devolução (ex: lente com defeito, medida errada, etc.)"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Confirmar Atualização</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const radioDevolucao = document.getElementById('acao3');
+    const observacaoDiv = document.getElementById('observacao-devolucao');
+    
+    radioDevolucao.addEventListener('change', function() {
+        observacaoDiv.style.display = this.checked ? 'block' : 'none';
+    });
+});
+</script>
+{% endblock %}

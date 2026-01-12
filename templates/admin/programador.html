@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Programador{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Área do Programador</h2>
+    <p>Conteúdo do ambiente programador vai aqui.</p>
+
+    <!-- Menu Secundário -->
+    {% set menu_itens = [
+        {'label': 'Empresas', 'url': url_for('admin.listar_empresas'), 'icon': 'fas fa-building'},
+        {'label': 'Ambientes', 'url': url_for('admin.listar_ambientes'), 'icon': 'fas fa-cog'}
+    ] %}
+    {% include 'partials/menu_secundario.html' %}
+
+</div>
+{% endblock %}

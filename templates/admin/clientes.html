@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Devsoft - Clientes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>👥 Clientes</h3>
+    
+    {% if origem %}
+        {% if origem == 'entradas' %}
+            <button class="btn btn-outline-secondary btn-sm" 
+                    onclick="window.location.href='{{ url_for('entradas.index') }}'">
+                ← Voltar para Entradas
+            </button>
+        {% elif origem == 'saidas' %}
+            <button class="btn btn-outline-secondary btn-sm" 
+                    onclick="window.location.href='{{ url_for('saidas.index') }}'">
+                ← Voltar para Saídas
+            </button>        
+        {% elif origem == 'financeiro' %}
+            <button class="btn btn-outline-secondary btn-sm" 
+                    onclick="window.location.href='{{ url_for('financeiro.index') }}'">
+                ← Voltar para Financeiro
+            </button>
+        {% else %}
+            <button class="btn btn-outline-secondary btn-sm" onclick="window.history.back()">
+                ← Voltar
+            </button>
+        {% endif %}
+    {% else %}
+        <!-- Acesso direto pelo admin/cadastro -->
+        <button class="btn btn-outline-secondary btn-sm" 
+                onclick="window.location.href='{{ url_for('admin.cadastro', amb_id=1) }}'">
+            ← Voltar ao Cadastro
+        </button>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header bg-white d-flex align-items-center">
+        <i class="fas fa-clipboard-list me-2"></i>
+        <strong>📋 Clientes Cadastrados</strong>
+    </div>
+    <div class="card-body">
+        <!-- Barra de pesquisa com F2 -->
+        <form method="GET" class="mb-3">
+            <!-- Passar origem na URL para manter o contexto após a pesquisa -->
+            {% if origem %}
+                <input type="hidden" name="origem" value="{{ origem }}">
+            {% endif %}
+            
+            <!-- Campo oculto para o tipo de filtro -->
+            <input type="hidden" name="filtro" id="filtro-input" value="{{ request.args.get('filtro', 'nome') }}">
+            
+            <div class="input-group">
+                <span class="input-group-text" id="filtro-label">
+                    {% set filtro_atual = request.args.get('filtro', 'nome') %}
+                    {% if filtro_atual == 'nome' %}Nome{% elif filtro_atual == 'cpf' %}CPF/CNPJ{% else %}Código{% endif %}
+                </span>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="q" 
+                    id="search-input"
+                    placeholder="Pesquisar por {{ 'nome' if not request.args.get('filtro') or request.args.get('filtro') == 'nome' else ('CPF/CNPJ' if request.args.get('filtro') == 'cpf' else 'código') }}"
+                    value="{{ request.args.get('q', '') }}"
+                    autofocus
+                >
+                <button class="btn btn-outline-secondary" type="submit">🔍</button>
+            </div>
+            <small class="form-text text-muted">
+                Pressione <kbd>F2</kbd> para alternar entre Nome, CPF/CNPJ e Código.
+            </small>
+        </form>
+
+        <!-- Só mostra "+ Novo Cliente" se for acesso direto (sem origem) ou do admin/cadastro -->
+        {% if not origem or origem in ['admin', 'cadastro'] %}
+            <a href="{{ url_for('admin.novo_cliente') }}" class="btn btn-success mb-3">+ Novo Cliente</a>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>CÓD.</th>
+                        <th>NOME</th>
+                        <th>CPF/CNPJ</th>
+                        {% if not origem or origem in ['admin', 'cadastro'] %}
+                            <th>AÇÕES</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if clientes %}
+                        {% for cli in clientes %}
+                        <tr>
+                            <td>{{ cli.cli_reg }}</td>
+                            <td>{{ cli.cli_nome|upper }}</td>
+                            <td>{{ cli.cli_cpf_cnpj or '-' }}</td>
+                            
+                            {% if not origem or origem in ['admin', 'cadastro'] %}
+                            <td>
+                                <a href="{{ url_for('admin.editar_cliente', id=cli.cli_reg) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form method="POST" action="{{ url_for('admin.toggle_cliente_ativo') }}" style="display:inline;">
+                                    <input type="hidden" name="cli_reg" value="{{ cli.cli_reg }}">
+                                    <input type="hidden" name="ativo" value="false">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Desativar cliente?')">
+                                        Desativar
+                                    </button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="{% if not origem or origem in ['admin', 'cadastro'] %}4{% else %}3{% endif %}" class="text-center">
+                                NENHUM CLIENTE ENCONTRADO.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para alternar filtro com F2 -->
+<script>
+document.addEventListener('keydown', function(e) {
+    // Detecta F2 (keyCode 113 ou key === 'F2')
+    if (e.keyCode === 113 || (e.key && e.key.toUpperCase() === 'F2')) {
+        e.preventDefault();
+        
+        const filtroInput = document.getElementById('filtro-input');
+        const label = document.getElementById('filtro-label');
+        const searchInput = document.getElementById('search-input');
+        let atual = filtroInput.value;
+
+        // Ciclo: nome → cpf → codigo → nome
+        if (atual === 'nome') {
+            filtroInput.value = 'cpf';
+            label.textContent = 'CPF/CNPJ';
+            searchInput.placeholder = 'Pesquisar por CPF/CNPJ';
+        } else if (atual === 'cpf') {
+            filtroInput.value = 'codigo';
+            label.textContent = 'Código';
+            searchInput.placeholder = 'Pesquisar por Código';
+        } else {
+            filtroInput.value = 'nome';
+            label.textContent = 'Nome';
+            searchInput.placeholder = 'Pesquisar por Nome';
+        }
+    }
+});
+</script>
+{% endblock %}
