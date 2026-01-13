@@ -31,7 +31,6 @@ class Empresa(db.Model):
     clientes = db.relationship('Cliente', back_populates='empresa', lazy=True)
     fornecedores = db.relationship('Fornecedor', back_populates='empresa', lazy=True)
     produtos = db.relationship('Produto', back_populates='empresa', lazy=True)
-    tipos_cartao = db.relationship('TipoCartao', back_populates='empresa', lazy=True)
 
     # 🔽 Novos relacionamentos com os cadastros contábeis/administrativos
     bancos = db.relationship('Banco', back_populates='empresa', lazy='dynamic')

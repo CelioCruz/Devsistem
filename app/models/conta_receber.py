@@ -1,4 +1,4 @@
-from ...extensions import db
+from ..extensions import db
 
 class ContaReceber(db.Model):
     __tablename__ = 'tb_conta_receber'

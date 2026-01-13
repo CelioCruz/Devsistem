@@ -1,9 +1,8 @@
 # app/routes/financeiro.py
-from flask import Blueprint, render_template, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_required
-from datetime import datetime
-from flask import request
-from ..models import Cliente, Fornecedor, SaidaNF, Entrada
+from datetime import datetime, date, timedelta
+from ..models import Cliente, Fornecedor, SaidaNF, Entrada, Caixa
 
 bp = Blueprint('financeiro', __name__, url_prefix='/financeiro')
 
@@ -57,8 +56,10 @@ def historico_cliente_detalhes(cliente_id):
         data_fim = hoje.strftime('%Y-%m-%d')
 
     # Busca vendas (Saídas) do cliente no período
+    # Nota: snf_cliente_id é String (CPF/CNPJ), então precisa converter cliente_id para CPF/CNPJ
+    cliente_cpf_cnpj = cliente.cli_cpf_cnpj
     vendas = SaidaNF.query.filter(
-        SaidaNF.cliente_id == cliente_id,
+        SaidaNF.snf_cliente_id == cliente_cpf_cnpj,
         SaidaNF.snf_data_emissao >= data_ini,
         SaidaNF.snf_data_emissao <= data_fim
     ).order_by(SaidaNF.snf_data_emissao.desc()).all()
@@ -92,8 +93,10 @@ def historico_fornecedor_detalhes(fornecedor_id):
         data_fim = hoje.strftime('%Y-%m-%d')
 
     # Busca entradas (notas fiscais de entrada) no período
+    # Nota: fornecedor_id é String (CNPJ)
+    fornecedor_cnpj = fornecedor.forn_cnpj
     entradas = Entrada.query.filter(
-        Entrada.fornecedor_id == fornecedor_id,
+        Entrada.fornecedor_id == fornecedor_cnpj,
         Entrada.data_emissao >= data_ini,
         Entrada.data_emissao <= data_fim
     ).order_by(Entrada.data_emissao.desc()).all()

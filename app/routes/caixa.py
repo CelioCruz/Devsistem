@@ -1,11 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from ..extensions import db
 from ..models import OrdemServico, Cliente, Caixa, Devolucao, ItemDevolucao, Usuario, Produto, Convenio, Laboratorio, Medico
 from datetime import datetime, date, timedelta
 from decimal import Decimal
-from ..utils.gerar_proximo import gerar_proximo_cv, gerar_proximo_os
-from flask_login import login_required, current_user 
+from ..utils.gerar_proximo import gerar_proximo_cv, gerar_proximo_os 
 
 bp = Blueprint('caixa', __name__, url_prefix='/caixa')
 
@@ -70,11 +69,6 @@ def abrir_caixa():
     return render_template('caixa/abertura_caixa.html')
 
 # --- Fechamento de Caixa ---
-from decimal import Decimal
-from datetime import datetime
-from flask import request, flash, redirect, url_for, render_template
-from flask_login import login_required, current_user
-
 @bp.route('/fechar', methods=['GET', 'POST'])
 @login_required
 def fechar_caixa():

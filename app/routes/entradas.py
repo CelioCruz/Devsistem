@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, current_user
-from .. import db
+from ..extensions import db
 from ..models import *
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, date
@@ -10,17 +10,21 @@ import os
 import random
 import string
 import re
-from datetime import datetime
-from ..models import OrdemServico, OrdemCompra, Fornecedor
 
 bp = Blueprint('entradas', __name__, url_prefix='/entradas')
 
 def verificar_acesso():
-    if current_user.us_email not in ['cruz@devsoft', 'master@system']:
-        if current_user.us_tipo != 'administrador':
-            flash('Você não tem permissão para acessar esta página.', 'danger')
-            return redirect(url_for('admin.home'))
-    return None
+    if not current_user.is_authenticated:
+        return "Usuário não autenticado."
+    # ✅ CERTO: permitir master OU usuários com ambiente "entradas"
+    if hasattr(current_user, 'us_email') and current_user.us_email in {'cruz@devsoft', 'master@system'}:
+        return None  # master tem acesso total
+    # Verificar se o usuário tem acesso ao módulo "entradas"
+    if hasattr(current_user, 'ambientes_permitidos'):
+        nomes_ambientes = [amb.amb_nome for amb in current_user.ambientes_permitidos]
+        if 'entradas' in nomes_ambientes:
+            return None
+    return "Você não tem permissão para acessar este módulo."
 
 def str_to_date(s):
     if not s:

@@ -2,6 +2,13 @@ from flask_login import UserMixin
 from ..extensions import db, login_manager
 from datetime import datetime
 
+# 🔹 Tabela associativa N:N: DEFINIDA FORA DA CLASSE
+usuario_ambiente = db.Table(
+    'tb_usuario_ambiente',
+    db.Column('usuario_id', db.Integer, db.ForeignKey('tb_us.us_reg'), primary_key=True),
+    db.Column('ambiente_id', db.Integer, db.ForeignKey('tb_ambiente.amb_id'), primary_key=True)
+)
+
 class Usuario(UserMixin, db.Model):
     __tablename__ = 'tb_us'
 
@@ -9,55 +16,63 @@ class Usuario(UserMixin, db.Model):
     us_cad = db.Column(db.String(100), nullable=False)
     us_email = db.Column(db.String(100), unique=True, nullable=False)
     us_senha = db.Column(db.String(200), nullable=False)
-    us_ambiente_id = db.Column(db.Integer, db.ForeignKey('tb_ambiente.amb_id'), nullable=True)
+    
+    # ⚠️ OPÇÃO 1: Manter o campo legado (opcional, para migração)
+    # us_ambiente_id = db.Column(db.Integer, db.ForeignKey('tb_ambiente.amb_id'), nullable=True)
+    
+    # Recomendação: REMOVER us_ambiente_id se for usar só N:N
+    # Mas se quiser manter por enquanto, comente a linha acima
+    
     us_empresa_id = db.Column(db.Integer, db.ForeignKey('tb_empresa.emp_reg'), nullable=True)
     us_ativo = db.Column(db.Boolean, default=True)
     us_datcad = db.Column(db.DateTime, default=db.func.current_timestamp())
     loja_id = db.Column(db.String(2), default='01')
-
-    # Novo campo: obriga o usuário a trocar a senha no próximo login
     us_forcar_troca_senha = db.Column(db.Boolean, default=False)
 
-    # Relacionamentos
-    ambiente = db.relationship('Ambiente', backref='usuarios')
+    # 🔹 Relacionamentos
     empresa = db.relationship('Empresa', back_populates='usuarios')
+    
+    # Relacionamento N:N com ambientes
+    ambientes_permitidos = db.relationship(
+        'Ambiente',
+        secondary=usuario_ambiente,
+        backref=db.backref('usuarios_autorizados', lazy='dynamic')
+    )
+
+    # ⚠️ Se mantiver us_ambiente_id, descomente esta linha:
+    # ambiente = db.relationship('Ambiente', foreign_keys=[us_ambiente_id])
 
     def get_id(self):
         return str(self.us_reg)
+
 
 @login_manager.user_loader
 def load_user(user_id):
     if user_id == "-1":
         class ProgramadorMaster(UserMixin):
-            # Identificação
             us_reg = -1
             us_cad = "cruzdevsoft"
             us_email = "master@system"
             us_tipo = "super_admin"
             us_ativo = True
-            
-            # Campos obrigatórios para compatibilidade
-            us_ambiente_id = None      # acesso irrestrito
-            us_empresa_id = 1          # ID da empresa padrão
+            us_empresa_id = 1
             loja_id = '01'
             us_forcar_troca_senha = False
 
-            # Relacionamentos simulados
-            @property
-            def ambiente(self):
-                return None  # sem ambiente fixo
-            
             @property
             def empresa(self):
                 from .empresa import Empresa
-                return Empresa.query.get(1)  # empresa padrão
+                return Empresa.query.get(1)
 
-            # Métodos exigidos
+            @property
+            def ambientes_permitidos(self):
+                # Master tem acesso a todos → retorna lista vazia ou todos, dependendo da lógica
+                # Na prática, nas rotas você ignora essa lista para master
+                return []
+
             def get_id(self):
                 return "-1"
 
-            # 👇 Adicione qualquer outro campo usado em templates/rotas
-            # Ex: se usar current_user.nome, adicione:
             @property
             def nome(self):
                 return "Super Admin"

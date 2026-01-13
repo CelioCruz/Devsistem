@@ -18,15 +18,13 @@ class OrdemCompra(db.Model):
     oc_transporte = db.Column(db.String(50))
     oc_etiquetagem = db.Column(db.String(100))
     oc_observacoes = db.Column(db.Text)
-    oc_status = db.Column(db.String(20), default='rascunho')  # rascunho, aprovada, cancelada
     oc_usuario_criacao_id = db.Column(db.Integer, db.ForeignKey('tb_us.us_reg'))
     
     empresa = db.relationship('Empresa', foreign_keys=[oc_empresa_id])
     fornecedor = db.relationship('Fornecedor')
     empresa_responsavel = db.relationship('Empresa', foreign_keys=[oc_empresa_responsavel_id])
     usuario_criacao = db.relationship('Usuario')
-    itens = db.relationship('ItemOrdemCompra', back_populates='ordem', cascade='all, delete-orphan')
-    itens = db.relationship('ItemOrdemCompra', backref='ordem', lazy=True)
+    itens = db.relationship('ItemOrdemCompra', back_populates='ordem', lazy=True, cascade='all, delete-orphan')
 
 
 class ItemOrdemCompra(db.Model):
@@ -42,4 +40,5 @@ class ItemOrdemCompra(db.Model):
     ioc_peso = db.Column(db.Float)
     ioc_total = db.Column(db.Float)    
     
+    ordem = db.relationship('OrdemCompra', back_populates='itens')
     produto = db.relationship('Produto')

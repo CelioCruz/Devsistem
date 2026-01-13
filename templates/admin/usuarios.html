@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% block title %}Usuários{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -37,7 +35,7 @@
                             <input type="password" class="form-control" id="us_senha" name="us_senha" placeholder="Deixe em branco para manter a senha atual">
                         </div>
                     </div>
-                    <!-- NOVO CAMPO: Empresa -->
+                    <!-- Empresa -->
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="us_empresa_id">Empresa:</label>
@@ -49,25 +47,33 @@
                             </select>
                         </div>
                     </div>
-                    <!-- CAMPO: Ambiente (opcional) -->
+                    <!-- Ambientes (múltiplos) -->
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="us_ambiente_id">Ambiente:</label>
-                            <select class="form-control" id="us_ambiente_id" name="us_ambiente_id">
-                                <option value="">Selecione...</option>
+                            <label for="us_ambientes">Ambientes:</label>
+                            <select class="form-control" id="us_ambientes" name="us_ambientes" multiple>
                                 {% for ambiente in ambientes %}
-                                <option value="{{ ambiente.amb_id }}">{{ ambiente.amb_nome }}</option>
+                                <option value="{{ ambiente.amb_id }}"
+                                    {% if usuario and ambiente in usuario.ambientes_permitidos %}
+                                        selected
+                                    {% endif %}>
+                                    {{ ambiente.amb_nome }}
+                                </option>
                                 {% endfor %}
                             </select>
+                            <small class="form-text text-muted">Ctrl/Cmd + clique</small>
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Salvar Usuário</button>
-                <button type="button" class="btn btn-secondary" id="btn-limpar">Limpar</button>
-            </form>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Salvar Usuário</button>
+                    <button type="button" class="btn btn-secondary" id="btn-limpar">Limpar</button>
+                </div>
+            </form> <!-- 👈 FECHAMENTO DO FORMULÁRIO -->
         </div>
     </div>
 
+    <!-- LISTA DE USUÁRIOS -->
     <div class="card">
         <div class="card-header">
             <h5>Usuários Cadastrados</h5>
@@ -80,7 +86,7 @@
                         <th>Nome</th>
                         <th>E-mail</th>
                         <th>Empresa</th>
-                        <th>Ambiente</th>
+                        <th>Ambientes</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -92,7 +98,13 @@
                         <td>{{ usuario.us_cad }}</td>
                         <td>{{ usuario.us_email }}</td>
                         <td>{{ usuario.empresa.emp_nome_fantasia if usuario.empresa else 'N/A' }}</td>
-                        <td>{{ usuario.ambiente.amb_nome if usuario.ambiente else 'N/A' }}</td>
+                        <td>
+                            {% if usuario.ambientes_permitidos %}
+                                {{ usuario.ambientes_permitidos | join(', ', attribute='amb_nome') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
                         <td>
                             {% if usuario.us_ativo %}
                                 <span class="badge bg-success">Ativo</span>
@@ -105,9 +117,7 @@
                                 <form method="POST" action="{{ url_for('admin.listar_usuarios') }}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
                                     <input type="hidden" name="excluir_usuario" value="1">
                                     <input type="hidden" name="us_reg" value="{{ usuario.us_reg }}">
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        Excluir
-                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
                                 </form>
                                 <form method="POST" action="{{ url_for('admin.toggle_usuario_ativo') }}" style="display:inline;">
                                     <input type="hidden" name="us_reg" value="{{ usuario.us_reg }}">
@@ -127,29 +137,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
-
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Evento para o botão Limpar
-    document.getElementById('btn-limpar').addEventListener('click', function() {
-        document.getElementById('form-title').textContent = 'Cadastrar Novo Usuário';
-        document.getElementById('cadastro-usuario-form').reset();
-        document.getElementById('us_reg').value = '';
-        document.getElementById('us_senha').placeholder = 'Senha';
-    });
-
-    // Evento para o botão Salvar (limpa o formulário após o envio de um novo cadastro)
-    document.getElementById('cadastro-usuario-form').addEventListener('submit', function() {
-        // Limpa o formulário após o envio (se for um novo cadastro)
-        if (!document.getElementById('us_reg').value) {
-            this.reset();
-            document.getElementById('us_reg').value = '';
-            document.getElementById('form-title').textContent = 'Cadastrar Novo Usuário';
-            document.getElementById('us_senha').placeholder = 'Senha';
-        }
-    });
-});
-</script>
 {% endblock %}

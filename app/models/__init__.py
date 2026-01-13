@@ -13,20 +13,20 @@ from .empresa import Empresa
 from .fornecedor import Fornecedor
 from .cliente import Cliente
 from .vendedor import Vendedor
-from .produto import Produto
+from .produto import Produto, LenteGenerica
 from .entradas import Entrada, ItemEntrada
 from .banco import Banco
 from .tipo_cartao import TipoCartao
 from .tipo_carne import TipoCarne
 from .condi_pagamento import CondicaoPagamento
-from .operacao_conciliacao import OperacaoConciliacao 
+from .operacao_conciliacao import OperacaoConciliacao
 from .feriado import Feriado
 from .custo_contabil import CentroCusto
 from .natureza_operacao import NaturezaOperacao
 from .ordem_compra import OrdemCompra, ItemOrdemCompra
 from .devolucao import Devolucao
 from .saida_nf import SaidaNF
-from .ordem_servico import OrdemServico 
+from .ordem_servico import OrdemServico
 from .caixa import Caixa
 from .item_devolucao import ItemDevolucao
 from .convenio import Convenio

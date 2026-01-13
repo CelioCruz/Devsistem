@@ -65,6 +65,11 @@ def listar_usuarios():
     if not _tem_permissao_master():
         flash('Você não tem permissão para acessar esta página.', 'danger')
         return redirect(url_for('admin.home'))
+
+    # Carregar listas fixas (usadas em GET e em caso de erro no POST)
+    ambientes = Ambiente.query.filter_by(amb_ativo=True).all()
+    empresas = Empresa.query.filter_by(emp_ativo=True).all()
+
     if request.method == 'POST':
         if 'excluir_usuario' in request.form:
             us_reg = request.form.get('us_reg', type=int)
@@ -82,7 +87,10 @@ def listar_usuarios():
             us_email = request.form.get('us_email', '').strip()
             us_senha = request.form.get('us_senha', '')
             us_empresa_id = request.form.get('us_empresa_id', type=int)
-            us_ambiente_id = request.form.get('us_ambiente_id', type=int)
+            ambiente_ids = request.form.getlist('us_ambientes')
+            ambiente_ids = [int(aid) for aid in ambiente_ids if aid.isdigit()]
+            is_admin = us_email in {'cruz@devsoft', 'master@system'}
+
             if not us_cad or not us_email:
                 flash('Nome e e-mail são obrigatórios.', 'warning')
             else:
@@ -90,18 +98,22 @@ def listar_usuarios():
                     usuario = Usuario.query.get(us_reg)
                     if not usuario:
                         flash('Usuário não encontrado.', 'danger')
+                    elif Usuario.query.filter(Usuario.us_email == us_email, Usuario.us_reg != us_reg).first():
+                        flash('E-mail já está em uso.', 'danger')
                     else:
-                        if Usuario.query.filter(Usuario.us_email == us_email, Usuario.us_reg != us_reg).first():
-                            flash('E-mail já está em uso.', 'danger')
+                        usuario.us_cad = us_cad
+                        usuario.us_email = us_email
+                        usuario.us_empresa_id = us_empresa_id
+                        if is_admin:
+                            usuario.ambientes_permitidos = []
                         else:
-                            usuario.us_cad = us_cad
-                            usuario.us_email = us_email
-                            usuario.us_empresa_id = us_empresa_id
-                            usuario.us_ambiente_id = us_ambiente_id
-                            if us_senha:
-                                usuario.us_senha = generate_password_hash(us_senha)
-                            db.session.commit()
-                            flash('Usuário atualizado!', 'success')
+                            ambientes_objs = Ambiente.query.filter(Ambiente.amb_id.in_(ambiente_ids)).all()
+                            usuario.ambientes_permitidos = ambientes_objs
+                        if us_senha:
+                            usuario.us_senha = generate_password_hash(us_senha)
+                        db.session.commit()
+                        flash('Usuário atualizado!', 'success')
+                        return redirect(url_for('admin.listar_usuarios'))
                 else:
                     if Usuario.query.filter_by(us_email=us_email).first():
                         flash('E-mail já cadastrado.', 'danger')
@@ -110,15 +122,24 @@ def listar_usuarios():
                             us_cad=us_cad,
                             us_email=us_email,
                             us_senha=generate_password_hash(us_senha),
-                            us_empresa_id=us_empresa_id,
-                            us_ambiente_id=us_ambiente_id
+                            us_empresa_id=us_empresa_id
                         )
+                        if is_admin:
+                            novo.ambientes_permitidos = []
+                        else:
+                            ambientes_objs = Ambiente.query.filter(Ambiente.amb_id.in_(ambiente_ids)).all()
+                            novo.ambientes_permitidos = ambientes_objs
                         db.session.add(novo)
                         db.session.commit()
                         flash('Usuário criado com sucesso!', 'success')
+                        return redirect(url_for('admin.listar_usuarios'))
+
+        # Se houver erro no POST, re-renderiza o formulário com os dados
+        usuarios = Usuario.query.all()
+        return render_template('admin/usuarios.html', usuarios=usuarios, ambientes=ambientes, empresas=empresas)
+
+    # Método GET
     usuarios = Usuario.query.all()
-    ambientes = Ambiente.query.filter_by(amb_ativo=True).all()
-    empresas = Empresa.query.filter_by(emp_ativo=True).all()
     return render_template('admin/usuarios.html', usuarios=usuarios, ambientes=ambientes, empresas=empresas)
 
 @bp.route('/usuarios/toggle-ativo', methods=['POST'])

@@ -1,5 +1,5 @@
 from datetime import datetime
-from . import db
+from ..extensions import db
 
 class OrdemServico(db.Model):
     __tablename__ = 'ordem_servico'

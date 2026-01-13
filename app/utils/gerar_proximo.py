@@ -1,4 +1,6 @@
-from ..extensions import db 
+from ..extensions import db
+from sqlalchemy import func
+from ..models import OrdemServico
 
 # Função para gerar próximo CV (global)
 def gerar_proximo_cv():

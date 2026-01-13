@@ -15,15 +15,9 @@ class Entrada(db.Model):
     nota_fiscal = db.Column(db.String(20))
     tipo_nota = db.Column(db.String(20))
     natureza_operacao = db.Column(db.String(20))
-    fornecedor_id = db.Column(db.String(14), db.ForeignKey('tb_fornecedor.forn_cnpj'))
-    usuario_id = db.Column(db.Integer, db.ForeignKey('tb_us.us_reg'))
-    data_entrada = db.Column(db.DateTime, default=datetime.utcnow)
-    itens = db.relationship('ItemEntrada', backref='entrada', cascade='all, delete-orphan')
-
-    # Relacionamentos
-    data_entrada = db.Column(db.DateTime, default=datetime.utcnow)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('tb_us.us_reg'), nullable=False)
     fornecedor_id = db.Column(db.String(14), db.ForeignKey('tb_fornecedor.forn_cnpj'), nullable=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('tb_us.us_reg'), nullable=False)
+    data_entrada = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relacionamento reverso
     itens = db.relationship('ItemEntrada', backref='entrada', lazy=True, cascade='all, delete-orphan')

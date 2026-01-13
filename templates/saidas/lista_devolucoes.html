@@ -3,19 +3,22 @@
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Cabeçalho com título e botão Voltar -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3><i class="bi bi-arrow-return-left me-2"></i> Devoluções de Venda</h3>
         <a href="{{ url_for('saidas.index') }}" class="btn btn-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> Voltar para Saidas
+            <i class="bi bi-arrow-left me-1"></i> Voltar
         </a>
     </div>
 
+    <!-- Botão para nova devolução -->
     <div class="mb-3">
         <a href="{{ url_for('saidas.nova_devolucao') }}" class="btn btn-success">
             <i class="bi bi-plus-circle me-1"></i> Nova Devolução
         </a>
     </div>
 
+    <!-- Lista de devoluções -->
     <div class="card">
         <div class="card-header bg-white">
             <strong>📋 Devoluções Registradas</strong>
@@ -39,8 +42,20 @@
                             {% for dev in devolucoes %}
                             <tr>
                                 <td>{{ dev.dev_reg }}</td>
-                                <td>{{ dev.nf_saida.snf_numero if dev.nf_saida else '–' }}</td>
-                                <td>{{ dev.cliente.cli_nome if dev.cliente else '–' }}</td>
+                                <td>
+                                    {% if dev.nf_saida %}
+                                        {{ dev.nf_saida.snf_numero }}
+                                    {% else %}
+                                        <span class="text-muted">–</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if dev.cliente %}
+                                        {{ dev.cliente.cli_nome }}
+                                    {% else %}
+                                        <span class="text-muted">–</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ dev.dev_data.strftime('%d/%m/%Y') }}</td>
                                 <td>{{ dev.dev_motivo or '–' }}</td>
                                 <td>

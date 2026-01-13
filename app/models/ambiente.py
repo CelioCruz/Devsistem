@@ -1,6 +1,9 @@
 from ..extensions import db
 from datetime import datetime
 
+# Importar a tabela intermediária de __init__.py
+from . import empresa_tem_ambiente
+
 class Ambiente(db.Model):
     __tablename__ = 'tb_ambiente'
 
@@ -11,7 +14,7 @@ class Ambiente(db.Model):
     amb_datcad = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     # Relacionamento com Empresa (via tabela intermediária)
-    empresas = db.relationship('Empresa', secondary='tb_empresa_tem_ambiente', lazy='subquery',
+    empresas = db.relationship('Empresa', secondary=empresa_tem_ambiente, lazy='subquery',
                                back_populates='ambientes_permitidos')
 
     def __repr__(self):
