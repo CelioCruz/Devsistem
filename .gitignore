@@ -1,3 +1,10 @@
+
+# Arquivos temporários
+*~
+*.tmp
+*.bak
+Untitled
+
 # Python
 __pycache__/
 *.pyc
@@ -42,4 +49,5 @@ instance/
 
 # Sistema
 .DS_Store
-Thumbs.db
+Thumbs.db*~
+Untitled
