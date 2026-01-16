@@ -6,12 +6,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>{{ 'Editar Empresa' if empresa else 'Nova Empresa' }}</h2>
-        <a href="{{ url_for('admin.listar_empresas') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+        <a href="{{ url_for('admin.cadastro') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <form method="POST">
+            <!-- ⚠️ enctype obrigatório para upload de arquivos -->
+            <form method="POST" enctype="multipart/form-data">
+                <!-- Dados básicos -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -32,6 +34,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- CNPJ e Inscrições -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -59,6 +63,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Endereço -->
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
@@ -87,6 +93,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Cidade, UF, Telefone -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -115,36 +123,119 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- E-mail -->
                 <div class="form-group">
                     <label for="emp_email">E-mail</label>
                     <input type="email" class="form-control" id="emp_email" name="emp_email"
                            value="{{ empresa.emp_email if empresa else '' }}">
                 </div>
 
-                <!-- Campo para selecionar os ambientes -->
-                <div class="form-group">
-                    <label for="ambientes">Ambientes Liberados:</label>
-                    <select multiple class="form-control" id="ambientes" name="ambientes[]" size="5">
-                        {% for ambiente in todos_ambientes %}
-                        {% if empresa and ambiente in empresa.ambientes_permitidos %}
-                            <option value="{{ ambiente.amb_id }}" selected>
-                                {{ ambiente.amb_nome }}
-                            </option>
-                        {% else %}
-                            <option value="{{ ambiente.amb_id }}">
-                                {{ ambiente.amb_nome }}
-                            </option>
+                <!-- 🔹 TIPO DE EMPRESA (TRIBUTAÇÃO) -->
+                <div class="form-group mt-3">
+                    <label for="emp_tipo">Tipo Tributário (Nível Brasil) *</label>
+                    <select class="form-control" id="emp_tipo" name="emp_tipo" required>
+                        <option value="">Selecione o regime tributário</option>
+                        <option value="MEI" {% if empresa and empresa.emp_tipo == 'MEI' %}selected{% endif %}>MEI - Microempreendedor Individual</option>
+                        <option value="Simples Nacional" {% if empresa and empresa.emp_tipo == 'Simples Nacional' %}selected{% endif %}>Simples Nacional</option>
+                        <option value="Lucro Real" {% if empresa and empresa.emp_tipo == 'Lucro Real' %}selected{% endif %}>Lucro Real</option>
+                        <option value="Lucro Presumido" {% if empresa and empresa.emp_tipo == 'Lucro Presumido' %}selected{% endif %}>Lucro Presumido</option>
+                        <option value="Microempresa" {% if empresa and empresa.emp_tipo == 'Microempresa' %}selected{% endif %}>Microempresa</option>
+                        <option value="Empresa de Grande Porte" {% if empresa and empresa.emp_tipo == 'Empresa de Grande Porte' %}selected{% endif %}>Empresa de Grande Porte</option>
+                    </select>
+                </div>
+
+                <!-- 🔹 CERTIFICADO DIGITAL -->
+                <div class="form-group mt-3">
+                    <label>Certificado Digital A1 (.pfx ou .p12)</label>
+                    <div class="d-flex align-items-center">
+                        <input type="file" class="form-control" id="emp_certificado_arquivo" name="emp_certificado_arquivo"
+                               accept=".pfx,.p12">
+                        {% if empresa and empresa.emp_certificado_a1 %}
+                            <a href="{{ url_for('admin.download_certificado', id=empresa.emp_reg) }}" 
+                               class="btn btn-sm btn-outline-info ms-2" title="Baixar certificado atual">
+                                <i class="fas fa-download"></i> Baixar
+                            </a>
                         {% endif %}
-                        {% endfor %}
+                    </div>
+                    {% if empresa and empresa.emp_certificado_a1 %}
+                        <small class="form-text text-muted">Certificado já cadastrado.</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="emp_certificado_senha">Senha do Certificado</label>
+                    <!-- ⚠️ NUNCA exibir a senha salva por segurança -->
+                    <input type="password" class="form-control" id="emp_certificado_senha" name="emp_certificado_senha"
+                           placeholder="Digite a senha do certificado">
+                    <small class="form-text text-muted">A senha será armazenada de forma criptografada.</small>
+                </div>
+
+                <!-- 🔹 LICENÇA / TEMPORIZADOR -->
+                <div class="form-group mt-4">
+                    <label>Tipo de Licença</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="emp_licenca_tipo" id="licenca_permanente" value="permanente"
+                               {% if not empresa or empresa.emp_licenca_tipo == 'permanente' %}checked{% endif %}>
+                        <label class="form-check-label" for="licenca_permanente">
+                            Permanente
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="emp_licenca_tipo" id="licenca_temporaria" value="temporaria"
+                               {% if empresa and empresa.emp_licenca_tipo == 'temporaria' %}checked{% endif %}>
+                        <label class="form-check-label" for="licenca_temporaria">
+                            Temporária
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row mt-2" id="data_fim_licenca" style="{% if not empresa or empresa.emp_licenca_tipo != 'temporaria' %}display:none;{% endif %}">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="emp_licenca_data_fim">Data de Término da Licença</label>
+                            <input type="date" class="form-control" id="emp_licenca_data_fim" name="emp_licenca_data_fim"
+                                   value="{{ empresa.emp_licenca_data_fim.strftime('%Y-%m-%d') if empresa and empresa.emp_licenca_data_fim else '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="emp_licenca_desativar_tempo" name="emp_licenca_desativar_tempo"
+                           value="true" {% if empresa and empresa.emp_licenca_desativar_tempo %}checked{% endif %}>
+                    <label class="form-check-label" for="emp_licenca_desativar_tempo">
+                        Desativar temporizador — usar permanentemente (ignora data de término)
+                    </label>
+                </div>
+
+                <!-- Ambientes -->
+                <div class="form-group mt-4">
+                    <label for="ambientes">Ambientes Liberados *</label>
+                    <select multiple class="form-control" id="ambientes" name="ambientes[]" size="6" required>
+                        {% if todos_ambientes %}
+                            {% for ambiente in todos_ambientes %}
+                            <option value="{{ ambiente.amb_id }}">{{ ambiente.amb_nome }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option disabled>Nenhum ambiente disponível</option>
+                        {% endif %}
                     </select>
                     <small class="form-text text-muted">Segure Ctrl (Windows) ou Cmd (Mac) para selecionar múltiplos ambientes.</small>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    {{ 'Atualizar Empresa' if empresa else 'Cadastrar Empresa' }}
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
+<!-- Script para mostrar/ocultar campo de data conforme tipo de licença -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const radioTemp = document.getElementById('licenca_temporaria');
+    const radioPerm = document.getElementById('licenca_permanente');
+    const dataFimDiv = document.getElementById('data_fim_licenca');
+
+    function toggleDataFim() {
+        dataFimDiv.style.display = radioTemp.checked ? 'block' : 'none';
+    }
+
+    radioTemp.addEventListener('change', toggleDataFim);
+    radioPerm.addEventListener('change', toggleDataFim);
+});
+</script>
 {% endblock %}

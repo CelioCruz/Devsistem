@@ -10,14 +10,27 @@
     <!-- Menu Secundário -->
     {% set menu_itens = [
         {'label': 'Usuários', 'url': url_for('admin.listar_usuarios'), 'icon': 'fas fa-users'},
-        {'label': 'Vendedores', 'url': url_for('admin.listar_vendedores'), 'icon': 'fas fa-user-tie'},
-        {'label': 'Clientes', 'url': url_for('admin.listar_clientes'), 'icon': 'fas fa-user-friends'},
-        {'label': 'Fornecedores', 'url': url_for('admin.listar_fornecedores'), 'icon': 'fas fa-truck'},
-        {'label': 'Produtos', 'url': url_for('admin.listar_produtos'), 'icon': 'fas fa-box'},
-        {'label': 'Bancos', 'url': url_for('admin.listar_bancos'), 'icon': 'fas fa-building-columns'},
-        {'label': 'Tipos de Cartão', 'url': url_for('admin.listar_tipos_cartao'), 'icon': 'fas fa-credit-card'},
-       
+        {'label': 'Clientes', 'url': '#', 'icon': 'fas fa-user-friends'},
+        {'label': 'Fornecedores', 'url': '#', 'icon': 'fas fa-truck'},
+        {'label': 'Produtos', 'url': '#', 'icon': 'fas fa-box'},
+        {'label': 'Bancos', 'url': '#', 'icon': 'fas fa-building-columns'},
+        {'label': 'Tipos de Cartão', 'url': '#', 'icon': 'fas fa-credit-card'},
+        {'label': 'Tipos de Carne', 'url': '#', 'icon': 'fas fa-barcode'},
+        {'label': 'Condições de Pagamento', 'url': '#', 'icon': 'fas fa-hand-holding-usd'},
+        {'label': 'Centro de Custo', 'url': '#', 'icon': 'fas fa-chart-pie'},
+        {'label': 'Feriados', 'url': '#', 'icon': 'fas fa-calendar'},
+        {'label': 'Convênios', 'url': '#', 'icon': 'fas fa-handshake'},
+        {'label': 'Laboratórios', 'url': '#', 'icon': 'fas fa-flask'},
+        {'label': 'Médicos', 'url': '#', 'icon': 'fas fa-user-md'},
     ] %}
+    
+    {% if current_user.us_email in ['cruz@devsoft', 'master@system'] %}
+        {% set menu_itens = menu_itens + [
+            {'label': 'Empresas', 'url': url_for('admin.nova_empresa'), 'icon': 'fas fa-building'},
+            {'label': 'Ambientes', 'url': url_for('admin.listar_ambientes'), 'icon': 'fas fa-layer-group'},
+        ] %}
+    {% endif %}      
+    
     {% include 'partials/menu_secundario.html' %}
 
 </div>

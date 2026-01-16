@@ -258,7 +258,7 @@
                     <li class="nav-item">
                         <a href="{{ url_for('admin.cadastro') }}" 
                            class="nav-link {{ 'active' if request.endpoint.startswith('admin.') and request.endpoint != 'admin.home' and request.endpoint != 'admin.ver_ambiente' else '' }}">
-                            Administrador
+                            Cadastro
                         </a>
                     </li>
                 {% elif ambiente.amb_nome == 'entradas' %}

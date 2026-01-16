@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Empresas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gerenciamento de Empresas</h2>
+        <div>
+            <a href="{{ url_for('admin.nova_empresa') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle"></i> Nova Empresa
+            </a>
+            <a href="{{ url_for('admin.cadastro') }}" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Empresas Cadastradas</h5>
+        </div>
+        <div class="card-body">
+            {% if empresas %}
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Razão Social</th>
+                        <th>Nome Fantasia</th>
+                        <th>CNPJ</th>
+                        <th>Tipo</th>
+                        <th>Status</th>
+                        <th>Data Cadastro</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empresa in empresas %}
+                    <tr>
+                        <td>{{ empresa.emp_reg }}</td>
+                        <td>{{ empresa.emp_razao_social }}</td>
+                        <td>{{ empresa.emp_nome_fantasia }}</td>
+                        <td>
+                            {% if empresa.emp_cnpj %}
+                                {{ empresa.emp_cnpj[:2] }}.{{ empresa.emp_cnpj[2:5] }}.{{ empresa.emp_cnpj[5:8] }}/{{ empresa.emp_cnpj[8:12] }}-{{ empresa.emp_cnpj[12:14] }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ empresa.emp_tipo or '-' }}</td>
+                        <td>
+                            {% if empresa.emp_ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if empresa.emp_datcad %}
+                                {{ empresa.emp_datcad.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.editar_empresa', id=empresa.emp_reg) }}" class="btn btn-sm btn-info" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-info">
+                Nenhuma empresa cadastrada. <a href="{{ url_for('admin.nova_empresa') }}">Criar uma</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

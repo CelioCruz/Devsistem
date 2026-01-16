@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv  # ← adicionado
+
+# Carrega as variáveis do .env na raiz do projeto
+load_dotenv()  # ← adicionado (deve ser a primeira coisa!)
+
 from app import create_app
 from app.extensions import db
-import os
-
 import app.models  # registra todos os modelos
 from werkzeug.security import generate_password_hash
 
@@ -60,7 +64,6 @@ def init_db_once():
         
         _banco_inicializado = True
 
-# 👇 Nova abordagem: inicializa no primeiro request manualmente
 @app.before_request
 def ensure_db_initialized():
     global _banco_inicializado

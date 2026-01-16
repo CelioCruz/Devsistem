@@ -31,6 +31,7 @@ var/
 venv/
 ENV/
 cruz.dev_venv/
+.env/
 
 # Banco de dados
 instance/

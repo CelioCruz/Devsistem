@@ -1,6 +1,10 @@
 from flask import Flask
 from .extensions import db, login_manager
 from .utils.filters import format_currency
+from dotenv import load_dotenv
+
+# Carrega variáveis do .env ANTES de importar outros módulos
+load_dotenv()
 
 def create_app():
     app = Flask(__name__, template_folder='../templates')
